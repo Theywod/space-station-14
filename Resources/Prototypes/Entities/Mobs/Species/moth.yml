@@ -84,6 +84,7 @@
   - type: Sprite # sprite again because we want different layer ordering
     noRot: true
     drawdepth: Mobs
+    scale: 1, 0.8 #SS220-change-races-height
     layers:
       - map: [ "enum.HumanoidVisualLayers.Chest" ]
       - map: [ "enum.HumanoidVisualLayers.Head" ]
@@ -142,6 +143,10 @@
   id: MobMothDummy
   categories: [ HideSpawnMenu ]
   components:
+#SS220-change-races-height-begin
+  - type: Sprite
+    scale: 1, 0.8
+#SS220-change-races-height-end
   - type: HumanoidAppearance
     species: Moth
   - type: Inventory

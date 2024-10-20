@@ -50,6 +50,11 @@
       types:
         Slash: 5 # Reduce?
   - type: Sprite # Need to redefine the whole order to draw the tail over their gas tank
+#SS220-change-races-height-begin
+    noRot: true
+    drawdepth: Mobs
+    scale: 1, 0.7
+#SS220-change-races-height-end
     layers:
     - map: [ "enum.HumanoidVisualLayers.Chest" ]
     - map: [ "enum.HumanoidVisualLayers.Head" ]
@@ -152,6 +157,10 @@
   id: MobVoxDummy
   categories: [ HideSpawnMenu ]
   components:
+#SS220-change-races-height-begin
+  - type: Sprite
+    scale: 1, 0.7
+#SS220-change-races-height-end
   - type: HumanoidAppearance
     species: Vox
   - type: Body

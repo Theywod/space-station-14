@@ -74,6 +74,11 @@
   - type: TypingIndicator
     proto: spider
   - type: Sprite # I'd prefer if these maps were better. Insert map pun here.
+#SS220-change-races-height-begin
+    noRot: true
+    drawdepth: Mobs
+    scale: 1, 1.16
+#SS220-change-races-height-end
     layers:
       - map: [ "enum.HumanoidVisualLayers.Chest" ]
       - map: [ "enum.HumanoidVisualLayers.Head" ]
@@ -128,6 +133,10 @@
   id: MobArachnidDummy
   categories: [ HideSpawnMenu ]
   components:
+#SS220-change-races-height-begin
+  - type: Sprite
+    scale: 1, 1.16
+#SS220-change-races-height-end
   - type: HumanoidAppearance
     species: Arachnid
 
