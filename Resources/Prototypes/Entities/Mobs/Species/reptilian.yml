@@ -22,7 +22,7 @@
   - type: Sprite
     noRot: true
     drawdepth: Mobs
-    scale: 1, 1.13
+    scale: 1.13, 1.13
 #SS220-change-races-height-end
   - type: Body
     prototype: Reptilian
@@ -93,7 +93,7 @@
   components:
 #SS220-change-races-height-begin
   - type: Sprite
-    scale: 1, 1.13
+    scale: 1.13, 1.13
 #SS220-change-races-height-end
   - type: HumanoidAppearance
     species: Reptilian

@@ -13,7 +13,7 @@
   - type: Sprite
     noRot: true
     drawdepth: Mobs
-    scale: 1, 0.8
+    scale: 0.8, 0.8
 #SS220-change-races-height-end
   - type: Body
     prototype: Slime
@@ -145,7 +145,7 @@
   components:
 #SS220-change-races-height-begin
   - type: Sprite
-    scale: 1, 0.8
+    scale: 0.8, 0.8
 #SS220-change-races-height-end
   - type: HumanoidAppearance
     species: SlimePerson

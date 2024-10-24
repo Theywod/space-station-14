@@ -53,7 +53,7 @@
 #SS220-change-races-height-begin
     noRot: true
     drawdepth: Mobs
-    scale: 1, 0.7
+    scale: 0.7, 0.7
 #SS220-change-races-height-end
     layers:
     - map: [ "enum.HumanoidVisualLayers.Chest" ]
@@ -159,7 +159,7 @@
   components:
 #SS220-change-races-height-begin
   - type: Sprite
-    scale: 1, 0.7
+    scale: 0.7, 0.7
 #SS220-change-races-height-end
   - type: HumanoidAppearance
     species: Vox

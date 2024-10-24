@@ -20,12 +20,10 @@
   - type: Icon
     sprite: SS220/Mobs/Species/Tajaran/parts.rsi
     state: full
-#SS220-change-races-height-begin
   - type: Sprite
     noRot: true
     drawdepth: Mobs
-    scale: 1, 0.9
-#SS220-change-races-height-end
+    scale: 0.9, 0.9
   - type: Body
     prototype: Tajaran
     requiredLegs: 2
@@ -98,10 +96,8 @@
   categories: [ HideSpawnMenu ]
   description: A dummy Tajaran meant to be used in character setup.
   components:
-#SS220-change-races-height-begin
   - type: Sprite
-    scale: 1, 0.9
-#SS220-change-races-height-end
+    scale: 0.9, 0.9
   - type: HumanoidAppearance
     species: Tajaran
   - type: Inventory
