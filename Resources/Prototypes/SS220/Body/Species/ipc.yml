@@ -67,6 +67,9 @@
       Brain: OrganIpcBrain
       Eyes: OrganIpcEyes
       Ears: OrganIpcEars
+      Tongue: OrganIpcTongue
+      Stomach: OrganIpcStomach
+      Muscle: OrganIpcMuscle 
   - type: HumanoidProfile
     species: Ipc
   - type: Inventory
@@ -457,3 +460,22 @@
     state: ears
   - type: Item
     heldPrefix: ears
+
+- type: entity
+  parent: [ OrganBaseTongue, OrganIpcInternal ]
+  id: OrganIpcTongue
+
+- type: entity
+  parent: [ OrganBaseStomach, OrganIpcInternal ]
+  id: OrganIpcStomach
+
+- type: entity
+  parent: [ OrganBase, OrganIpcInternal ]
+  id: OrganIpcMuscle
+  components:
+    - type: GibbableOrgan
+    - type: Sprite
+      sprite: SS220/Mobs/Species/Ipc/organs.rsi
+      state: muscle
+    - type: Organ
+      category: Muscle
