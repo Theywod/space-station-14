@@ -16,7 +16,7 @@
       required: false
     enum.HumanoidVisualLayers.Snout: #screen
       limit: 1
-      required: true
+      required: false
       default: [ ScreenStatic ]
     enum.HumanoidVisualLayers.Chest:
       limit: 1
@@ -142,6 +142,7 @@
     availableLanguages:
     - id: Galactic
     - id: Binary
+    - id: Ternary
   - type: Tag
     tags:
     - CanPilot
@@ -216,6 +217,10 @@
     - id: CableApcStack1
       amount: 4
   - type: Unrevivable
+  - type: DamageOnInteractProtection
+    damageProtection:
+      flatReductions:
+        Heat: 10
   - type: SleepEmitSound
     snore: /Audio/Machines/buzz-two.ogg
     interval: 30
@@ -263,6 +268,7 @@
         Blunt: 0
         Heat: 0
   - type: Ipc
+    damageFromEmp: 0 #IPC EMP damage removed.
   - type: PowerCellSlot
     cellSlotId: cell_slot
     fitsInCharger: true
@@ -311,6 +317,7 @@
         damage:
           types:
              Heat: -5
+             Cold: -5 #delete in future
       - qualityNeeded: Pulsing
         doAfterDelay: 1.2
         damage:
