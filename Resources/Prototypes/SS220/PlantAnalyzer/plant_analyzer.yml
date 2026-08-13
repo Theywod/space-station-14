@@ -1,0 +1,20 @@
+- type: entity
+  parent: BaseItem
+  id: PlantAnalyzer
+  name: plant analyzer
+  description: A device used to analyze the health and requirements of plants.
+  components:
+  - type: Sprite
+    sprite: Objects/Specific/Medical/healthanalyzer.rsi
+    layers:
+    - state: icon
+    - state: analyzer
+      shader: unshaded
+  - type: Item
+    size: Small
+  - type: PlantAnalyzer
+    canPrint: true
+  - type: UserInterface
+    interfaces:
+      enum.PlantAnalyzerUiKey.Key:
+        type: PlantAnalyzerBoundUserInterface

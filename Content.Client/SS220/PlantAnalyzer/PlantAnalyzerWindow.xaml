@@ -1,0 +1,105 @@
+<controls:FancyWindow
+    xmlns="https://spacestation14.io"
+    xmlns:controls="clr-namespace:Content.Client.UserInterface.Controls"
+    MaxHeight="600"
+    MinWidth="320">
+    <ScrollContainer
+        Margin="5 5 5 5"
+        ReturnMeasure="True"
+        VerticalExpand="True">
+        <BoxContainer Orientation="Vertical">
+
+            <Label
+                Name="NoPlantText"
+                Text="{Loc plant-analyzer-window-no-plant-text}" />
+
+            <BoxContainer
+                Name="PlantDataContainer"
+                Orientation="Vertical">
+
+                <BoxContainer Orientation="Horizontal" Margin="0 0 0 5">
+                    <BoxContainer Margin="5 0 0 0" Orientation="Vertical" VerticalAlignment="Top">
+                        <RichTextLabel Name="NameLabel" SetWidth="200" />
+                        <Label Name="StatusLabel" StyleClasses="LabelSubText" />
+                    </BoxContainer>
+                </BoxContainer>
+
+                <PanelContainer StyleClasses="LowDivider" />
+
+                <GridContainer Margin="0 5 0 0" Columns="2">
+                    <Label Text="{Loc plant-analyzer-window-health-text}" />
+                    <Label Name="HealthLabel" />
+                    <Label Text="{Loc plant-analyzer-window-age-text}" />
+                    <Label Name="AgeLabel" />
+                </GridContainer>
+
+                <PanelContainer StyleClasses="LowDivider" Margin="0 5 0 0" />
+
+                <Label Text="{Loc plant-analyzer-window-section-tray}" Margin="0 5 0 2" />
+                <GridContainer Columns="2">
+                    <Label Text="{Loc plant-analyzer-window-water-text}" />
+                    <Label Name="WaterLabel" />
+                    <Label Text="{Loc plant-analyzer-window-nutrition-text}" />
+                    <Label Name="NutritionLabel" />
+                    <Label Text="{Loc plant-analyzer-window-toxins-text}" />
+                    <Label Name="ToxinsLabel" />
+                    <Label Text="{Loc plant-analyzer-window-pests-text}" />
+                    <Label Name="PestsLabel" />
+                    <Label Text="{Loc plant-analyzer-window-weeds-text}" />
+                    <Label Name="WeedsLabel" />
+                </GridContainer>
+
+                <PanelContainer StyleClasses="LowDivider" Margin="0 5 0 0" />
+
+                <Label Text="{Loc plant-analyzer-window-section-requirements}" Margin="0 5 0 2" />
+                <GridContainer Columns="2">
+                    <Label Text="{Loc plant-analyzer-window-heat-text}" />
+                    <Label Name="HeatLabel" />
+                    <Label Text="{Loc plant-analyzer-window-light-text}" />
+                    <Label Name="LightLabel" />
+                    <Label Text="{Loc plant-analyzer-window-pressure-text}" />
+                    <Label Name="PressureLabel" />
+                </GridContainer>
+
+                <PanelContainer StyleClasses="LowDivider" Margin="0 5 0 0" />
+
+                <Label Text="{Loc plant-analyzer-window-section-yield}" Margin="0 5 0 2" />
+                <GridContainer Columns="2">
+                    <Label Text="{Loc plant-analyzer-window-yield-text}" />
+                    <Label Name="YieldLabel" />
+                    <Label Text="{Loc plant-analyzer-window-potency-text}" />
+                    <Label Name="PotencyLabel" />
+                    <Label Text="{Loc plant-analyzer-window-production-text}" />
+                    <Label Name="ProductionLabel" />
+                </GridContainer>
+
+                <PanelContainer Name="ChemicalsDivider" StyleClasses="LowDivider" Margin="0 5 0 0" Visible="False" />
+                <Label Name="ChemicalsTitle" Text="{Loc plant-analyzer-window-section-chemicals}" Margin="0 5 0 2" Visible="False" />
+                <BoxContainer Name="ChemicalsContainer" Orientation="Vertical" />
+
+                <PanelContainer Name="GassesDivider" StyleClasses="LowDivider" Margin="0 5 0 0" Visible="False" />
+                <Label Name="GassesTitle" Text="{Loc plant-analyzer-window-section-gasses}" Margin="0 5 0 2" Visible="False" />
+                <BoxContainer Name="GassesContainer" Orientation="Vertical" />
+
+                <PanelContainer Name="SoilDivider" StyleClasses="LowDivider" Margin="0 5 0 0" Visible="False" />
+                <Label Name="SoilTitle" Text="{Loc plant-analyzer-window-section-soil-reagents}" Margin="0 5 0 2" Visible="False" />
+                <BoxContainer Name="SoilContainer" Orientation="Vertical" />
+
+                <PanelContainer Name="MutationsDivider" StyleClasses="LowDivider" Margin="0 5 0 0" Visible="False" />
+                <Label Name="MutationsTitle" Text="{Loc plant-analyzer-window-section-mutations}" Margin="0 5 0 2" Visible="False" />
+                <BoxContainer Name="MutationsContainer" Orientation="Vertical" />
+
+            </BoxContainer>
+
+            <PanelContainer StyleClasses="LowDivider" Margin="0 5 0 0" />
+            <Button
+                Name="PrintButton"
+                Margin="0 5 0 5"
+                Access="Public"
+                Visible="False"
+                Disabled="True"
+                Text="{Loc plant-analyzer-window-print-text}" />
+
+        </BoxContainer>
+    </ScrollContainer>
+</controls:FancyWindow>
