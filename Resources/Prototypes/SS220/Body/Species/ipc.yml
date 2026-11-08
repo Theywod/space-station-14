@@ -186,19 +186,8 @@
     - Shock
     - Caustic
   - type: ToggleableVisuals
-    spriteLayer: light 
-  - type: PointLight
-    enabled: false
-    mask: /Textures/Effects/LightMasks/cone.png
-    autoRot: true
-    radius: 4
-    netsync: True
-  - type: HandheldLight
-    toggleOnInteract: false
-    wattage: 0.2
-    blinkingBehaviourId: blinking
-    radiatingBehaviourId: radiating
-    toggleAction: ActionIpcToggleLight
+    spriteLayer: light
+  # Клиентский компонент: остаётся на мобе, модуль его не добавляет.
   - type: LightBehaviour
     behaviours:
     - !type:FadeBehaviour
@@ -245,6 +234,40 @@
   - type: DamagedSiliconAccent
   - type: ProtectedFromStepTriggers
   - type: EyeProtection
+  - type: ItemSlots
+    slots:
+      cell_slot:
+        name: power-cell-slot-component-slot-name-default
+        startingItem: PowerCellMedium
+      sensor_slot:
+        name: ipc-suit-sensor-slot
+        whitelist:
+          tags:
+            - IpcSuitSensorModule
+        insertSound: /Audio/Items/pistol_magin.ogg
+        ejectSound: /Audio/Items/pistol_magout.ogg
+      flashlight_slot:
+        name: ipc-flashlight-slot
+        whitelist:
+          tags:
+            - IpcFlashlightModule
+        insertSound: /Audio/Items/pistol_magin.ogg
+        ejectSound: /Audio/Items/pistol_magout.ogg
+  - type: Lock
+    unlockOnClick: false
+  - type: ItemSlotsLock
+    slots:
+    - cell_slot
+  - type: ContainerContainer
+    containers:
+      cell_slot: !type:ContainerSlot { }
+      key_slots: !type:Container
+      sensor_slot: !type:ContainerSlot { }
+      flashlight_slot: !type:ContainerSlot { }
+  - type: ContainerFill
+    containers:
+      key_slots:
+      - EncryptionKeyCommon
   - type: Destructible
     thresholds:
     - trigger: !type:DamageTypeTrigger
@@ -256,6 +279,7 @@
         - cell_slot
         - key_slots
         - sensor_slot
+        - flashlight_slot
       - !type:GibBehavior {}
     - trigger: !type:DamageTypeTrigger
         damageType: Blunt
@@ -266,6 +290,7 @@
         - cell_slot
         - key_slots
         - sensor_slot
+        - flashlight_slot
       - !type:GibBehavior {}
   - type: FireVisuals
     alternateState: Standing
@@ -299,32 +324,6 @@
     enabled: true
     tags:
       - Ipc
-  - type: ItemSlots
-    slots:
-      cell_slot:
-        name: power-cell-slot-component-slot-name-default
-        startingItem: PowerCellMedium
-      sensor_slot:
-        name: ipc-suit-sensor-slot
-        whitelist:
-          tags:
-            - IpcSuitSensorModule
-        insertSound: /Audio/Items/pistol_magin.ogg
-        ejectSound: /Audio/Items/pistol_magout.ogg
-  - type: Lock
-    unlockOnClick: false
-  - type: ItemSlotsLock
-    slots:
-    - cell_slot
-  - type: ContainerContainer
-    containers:
-      cell_slot: !type:ContainerSlot { }
-      key_slots: !type:Container
-      sensor_slot: !type:ContainerSlot { }
-  - type: ContainerFill
-    containers:
-      key_slots:
-      - EncryptionKeyCommon
   - type: MultiRepairable
     selfRepairPenalty: 2
     options:

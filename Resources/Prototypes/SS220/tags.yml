@@ -415,3 +415,6 @@
 
 - type: Tag
   id: IpcSuitSensorModule
+
+- type: Tag
+  id: IpcFlashlightModule

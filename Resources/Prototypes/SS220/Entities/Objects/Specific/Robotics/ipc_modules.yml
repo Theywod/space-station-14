@@ -24,3 +24,50 @@
   - type: WirelessNetworkConnection
     range: 1200
   - type: StationLimitedNetwork
+
+- type: entity
+  parent: BaseItem
+  id: IpcFlashlightModule
+  name: IPC flashlight module
+  description: A module that equips an IPC with a built-in flashlight.
+  components:
+  - type: Sprite
+    sprite: Objects/Misc/module.rsi
+    state: power_mod
+  - type: Item
+    size: Small
+  - type: Tag
+    tags:
+    - IpcFlashlightModule
+  - type: TriggerOnGotInsertedIntoContainer
+    containerId: flashlight_slot
+    keyOut: ipcFlashlightInstall
+  - type: AddComponentsOnTrigger
+    keysIn:
+    - ipcFlashlightInstall
+    targetUser: true
+    components:
+    - type: HandheldLight
+      toggleOnInteract: false
+      wattage: 0.2
+      blinkingBehaviourId: blinking
+      radiatingBehaviourId: radiating
+      toggleAction: ActionIpcToggleLight
+    - type: PointLight
+      enabled: false
+      mask: /Textures/Effects/LightMasks/cone.png
+      autoRot: true
+      radius: 4
+      netsync: true
+    removeExisting: true
+  - type: TriggerOnGotRemovedFromContainer
+    containerId: flashlight_slot
+    keyOut: ipcFlashlightRemove
+  - type: RemoveComponentsOnTrigger
+    keysIn:
+    - ipcFlashlightRemove
+    targetUser: true
+    triggerOnce: true
+    components:
+    - type: HandheldLight
+    - type: PointLight
