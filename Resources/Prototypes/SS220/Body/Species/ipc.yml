@@ -255,6 +255,7 @@
         containers:
         - cell_slot
         - key_slots
+        - sensor_slot
       - !type:GibBehavior {}
     - trigger: !type:DamageTypeTrigger
         damageType: Blunt
@@ -264,6 +265,7 @@
         containers:
         - cell_slot
         - key_slots
+        - sensor_slot
       - !type:GibBehavior {}
   - type: FireVisuals
     alternateState: Standing
@@ -302,6 +304,13 @@
       cell_slot:
         name: power-cell-slot-component-slot-name-default
         startingItem: PowerCellMedium
+      sensor_slot:
+        name: ipc-suit-sensor-slot
+        whitelist:
+          tags:
+            - IpcSuitSensorModule
+        insertSound: /Audio/Items/pistol_magin.ogg
+        ejectSound: /Audio/Items/pistol_magout.ogg
   - type: Lock
     unlockOnClick: false
   - type: ItemSlotsLock
@@ -311,6 +320,7 @@
     containers:
       cell_slot: !type:ContainerSlot { }
       key_slots: !type:Container
+      sensor_slot: !type:ContainerSlot { }
   - type: ContainerFill
     containers:
       key_slots:

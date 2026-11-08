@@ -12,3 +12,14 @@
   parent: BaseGoldBorgModuleRecipe
   id: BorgModuleFireAxe
   result: BorgModuleFireAxe
+
+- type: latheRecipe
+  id: IpcSuitSensorModule
+  result: IpcSuitSensorModule
+  categories: [ Robotics ]
+  completetime: 3
+  materials:
+    Steel: 100
+    Glass: 100
+    Silver: 100
+    Gold: 100

@@ -1,0 +1,26 @@
+- type: entity
+  parent: BaseItem
+  id: IpcSuitSensorModule
+  name: IPC suit sensor module
+  description: A module that connects an IPC to the crew monitoring network.
+  components:
+  - type: Sprite
+    sprite: Objects/Misc/module.rsi
+    state: medical
+  - type: Item
+    size: Small
+  - type: Tag
+    tags:
+    - IpcSuitSensorModule
+  - type: SuitSensor
+    randomMode: false
+    mode: SensorCords
+    controlsLocked: false
+    activationContainer: sensor_slot
+  - type: DeviceNetwork
+    deviceNetId: Wireless
+    transmitFrequencyId: SuitSensor
+    savableAddress: false
+  - type: WirelessNetworkConnection
+    range: 1200
+  - type: StationLimitedNetwork

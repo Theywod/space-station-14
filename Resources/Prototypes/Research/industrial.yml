@@ -242,3 +242,17 @@
   - PowerCellHyper
   technologyPrerequisites:
   - AdvancedPowercells
+
+# ss220 ipc start
+- type: technology
+  id: IpcTechnology
+  name: research-technology-ipc
+  icon:
+    sprite: SS220/Objects/Devices/encryption_keys.rsi
+    state: decrypt_ipc
+  discipline: Industrial
+  tier: 1
+  cost: 5000
+  recipeUnlocks:
+  - IpcSuitSensorModule
+# ss220 epc end

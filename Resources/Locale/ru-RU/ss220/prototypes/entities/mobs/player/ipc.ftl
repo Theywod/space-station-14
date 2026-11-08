@@ -42,3 +42,10 @@ ent-ActionIpcScream = {ent-ActionScream}
 
 suicide-command-ipc-text-others = { CAPITALIZE($name) } запускает протокол деактивации!
 suicide-command-ipc-text-self = Запускает протокол деактивации!
+
+research-technology-ipc = КПБ
+
+ipc-suit-sensor-slot = модуль датчиков
+
+ent-IpcSuitSensorModule = модуль датчиков КПБ
+    .desc = Встраиваемый модуль, подключающий КПБ к сети мониторинга экипажа.

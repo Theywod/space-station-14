@@ -71,3 +71,10 @@
     - MechEquipmentGrabber
     - MechEquipmentHorn
     - MechEquipmentGrabberSmall
+
+# ss220 start
+- type: latheRecipePack
+  id: IpcModules
+  recipes:
+  - IpcSuitSensorModule
+# ss220 end
