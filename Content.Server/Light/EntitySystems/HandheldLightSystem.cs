@@ -97,7 +97,7 @@ namespace Content.Server.Light.EntitySystems
 
         private void OnShutdown(EntityUid uid, HandheldLightComponent component, ComponentShutdown args)
         {
-            _actions.RemoveAction(uid, component.ToggleActionEntity);
+            _actions.RemoveAction(component.ToggleActionEntity); //SS220-IpcFlashlight
             _actions.RemoveAction(uid, component.SelfToggleActionEntity);
         }
 

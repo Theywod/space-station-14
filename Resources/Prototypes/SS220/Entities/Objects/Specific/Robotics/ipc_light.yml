@@ -1,0 +1,23 @@
+- type: entity
+  id: IpcFlashlightLight
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: PointLight
+    enabled: false
+    mask: /Textures/Effects/LightMasks/cone.png
+    autoRot: true
+    radius: 4
+    netsync: true
+
+- type: entity
+  id: IpcMinerFlashlightLight
+  categories: [ HideSpawnMenu ]
+  components:
+  - type: PointLight
+    enabled: false
+    mask: /Textures/Effects/LightMasks/cone.png
+    autoRot: true
+    radius: 8
+    energy: 1.5
+    netsync: true
+

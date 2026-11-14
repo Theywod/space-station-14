@@ -55,10 +55,11 @@
       toggleAction: ActionIpcToggleLight
     - type: PointLight
       enabled: false
-      mask: /Textures/Effects/LightMasks/cone.png
-      autoRot: true
+      energy: 0
       radius: 4
       netsync: true
+    - type: IpcFlashlightVisuals
+      lightEntity: IpcFlashlightLight
     removeExisting: true
   - type: TriggerOnGotRemovedFromContainer
     containerId: flashlight_slot
@@ -67,7 +68,56 @@
     keysIn:
     - ipcFlashlightRemove
     targetUser: true
-    triggerOnce: true
     components:
     - type: HandheldLight
     - type: PointLight
+    - type: IpcFlashlightVisuals
+
+- type: entity
+  parent: BaseItem
+  id: IpcMinerFlashlightModule
+  name: IPC mining flashlight module
+  description: A bright wide-beam module that equips an IPC with a powerful mining flashlight. Consumes much more energy.
+  components:
+  - type: Sprite
+    sprite: Objects/Misc/module.rsi
+    state: security
+  - type: Item
+    size: Small
+  - type: Tag
+    tags:
+    - IpcFlashlightModule
+  - type: TriggerOnGotInsertedIntoContainer
+    containerId: flashlight_slot
+    keyOut: ipcMinerFlashlightInstall
+  - type: AddComponentsOnTrigger
+    keysIn:
+    - ipcMinerFlashlightInstall
+    targetUser: true
+    components:
+    - type: HandheldLight
+      toggleOnInteract: false
+      wattage: 0.5
+      blinkingBehaviourId: blinking
+      radiatingBehaviourId: radiating
+      toggleAction: ActionIpcToggleLight
+    - type: PointLight
+      enabled: false
+      energy: 0
+      radius: 8
+      netsync: true
+    - type: IpcFlashlightVisuals
+      lightEntity: IpcMinerFlashlightLight
+    removeExisting: true
+  - type: TriggerOnGotRemovedFromContainer
+    containerId: flashlight_slot
+    keyOut: ipcMinerFlashlightRemove
+  - type: RemoveComponentsOnTrigger
+    keysIn:
+    - ipcMinerFlashlightRemove
+    targetUser: true
+    components:
+    - type: HandheldLight
+    - type: PointLight
+    - type: IpcFlashlightVisuals
+
