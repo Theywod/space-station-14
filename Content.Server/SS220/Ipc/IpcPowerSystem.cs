@@ -16,14 +16,14 @@ public sealed partial class IpcPowerSystem : EntitySystem
     [Dependency] private SharedBatterySystem _battery = default!;
 
     /// <summary>
-    ///     Checks if the IPC battery has a charge below the critical threshold
-    ///     <see cref="IpcComponent.CritCharge"/>.
+    ///     Checks if the IPC battery has enough charge to power its systems.
+    ///     An IPC without a battery counts as having no power.
     /// </summary>
-    public bool HasCriticalCharge(Entity<IpcComponent> ent)
+    public bool HasEnoughPower(Entity<IpcComponent> ent)
     {
         if (!_powerCell.TryGetBatteryFromSlot(ent.Owner, out var battery))
             return false;
 
-        return _battery.GetChargeLevel(battery.Value.AsNullable()) <= ent.Comp.CritCharge;
+        return _battery.GetChargeLevel(battery.Value.AsNullable()) > ent.Comp.CritCharge;
     }
 }

@@ -140,7 +140,7 @@
     isEquipped: false
   - type: EncryptionKeyHolder
     keySlots: 4
-    examineHidden: true
+    examineHidden: false
   - type: ContainerContainer
     containers:
       key_slots: !type:Container

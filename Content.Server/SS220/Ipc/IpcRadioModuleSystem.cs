@@ -19,6 +19,8 @@ public sealed partial class IpcRadioModuleSystem : EntitySystem
 {
     private const string RadioSlotId = "radio_slot";
 
+    private static readonly LocId IpcNoPower = "ipc-no-power";
+
     [Dependency] private HeadsetSystem _headset = default!;
     [Dependency] private IpcPowerSystem _ipcPower = default!;
     [Dependency] private SharedPopupSystem _popup = default!;
@@ -84,11 +86,11 @@ public sealed partial class IpcRadioModuleSystem : EntitySystem
             && Transform(args.RadioSource).ParentUid != ent.Owner)
             return;
 
-        if (!_ipcPower.HasCriticalCharge(ent))
+        if (_ipcPower.HasEnoughPower(ent))
             return;
 
         args.Cancelled = true;
-        _popup.PopupEntity(Loc.GetString("ipc-no-power"), ent, ent);
+        _popup.PopupEntity(Loc.GetString(IpcNoPower), ent, ent);
     }
 
     /// <summary>
@@ -100,7 +102,7 @@ public sealed partial class IpcRadioModuleSystem : EntitySystem
             && Transform(args.RadioReceiver).ParentUid != ent.Owner)
             return;
 
-        if (_ipcPower.HasCriticalCharge(ent))
+        if (!_ipcPower.HasEnoughPower(ent))
             args.Cancelled = true;
     }
 }
