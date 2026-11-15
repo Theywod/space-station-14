@@ -19,9 +19,9 @@ public sealed class IpcRadioModuleSystem : EntitySystem
 {
     private const string RadioSlotId = "radio_slot";
 
-    [Dependency] private readonly HeadsetSystem _headset = default!;
-    [Dependency] private readonly IpcPowerSystem _ipcPower = default!;
-    [Dependency] private readonly SharedPopupSystem _popup = default!;
+    [Dependency] private HeadsetSystem _headset = default!;
+    [Dependency] private IpcPowerSystem _ipcPower = default!;
+    [Dependency] private SharedPopupSystem _popup = default!;
 
     public override void Initialize()
     {

@@ -282,7 +282,7 @@ public sealed partial class IpcSystem : SharedIpcSystem
 
         if (!TryComp<DamageableComponent>(ent, out var damageable))
             return;
-            
+
         args.DamageType = "Shock";
         _suicide.ApplyLethalDamage((ent.Owner, damageable), args.DamageType);
 
@@ -294,5 +294,4 @@ public sealed partial class IpcSystem : SharedIpcSystem
 
         args.Handled = true;
     }
-        
 }

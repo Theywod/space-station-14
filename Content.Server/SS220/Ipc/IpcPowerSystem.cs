@@ -12,8 +12,8 @@ namespace Content.Server.SS220.Ipc;
 /// </summary>
 public sealed class IpcPowerSystem : EntitySystem
 {
-    [Dependency] private readonly PowerCellSystem _powerCell = default!;
-    [Dependency] private readonly SharedBatterySystem _battery = default!;
+    [Dependency] private PowerCellSystem _powerCell = default!;
+    [Dependency] private SharedBatterySystem _battery = default!;
 
     public bool TryGetBattery(EntityUid ipc, out Entity<BatteryComponent> battery)
     {
