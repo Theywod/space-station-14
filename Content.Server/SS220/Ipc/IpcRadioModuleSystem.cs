@@ -1,8 +1,6 @@
 // © SS220, An EULA/CLA with a hosting restriction, full text: https://raw.githubusercontent.com/SerbiaStrong-220/space-station-14/master/CLA.txt
 
-using Content.Server.Radio;
 using Content.Server.Radio.EntitySystems;
-using Content.Shared.Popups;
 using Content.Shared.Radio.Components;
 using Content.Shared.SS220.Ipc;
 using Robust.Shared.Containers;
@@ -13,17 +11,16 @@ namespace Content.Server.SS220.Ipc;
 ///     Adapts an IPC radio module inserted into the radio slot to the
 ///     regular headset system. Container insertion does not raise the
 ///     inventory equip events, so the headset has to be marked as
-///     equipped manually.
+///     equipped manually. The module is switched off while the IPC has
+///     no charged battery.
 /// </summary>
 public sealed partial class IpcRadioModuleSystem : EntitySystem
 {
     private const string RadioSlotId = "radio_slot";
 
-    private static readonly LocId IpcNoPower = "ipc-no-power";
-
     [Dependency] private HeadsetSystem _headset = default!;
     [Dependency] private IpcPowerSystem _ipcPower = default!;
-    [Dependency] private SharedPopupSystem _popup = default!;
+    [Dependency] private SharedContainerSystem _container = default!;
 
     public override void Initialize()
     {
@@ -31,8 +28,27 @@ public sealed partial class IpcRadioModuleSystem : EntitySystem
 
         SubscribeLocalEvent<IpcComponent, EntInsertedIntoContainerMessage>(OnModuleInserted);
         SubscribeLocalEvent<IpcComponent, EntRemovedFromContainerMessage>(OnModuleRemoved);
-        SubscribeLocalEvent<IpcComponent, RadioSendAttemptEvent>(OnRadioSendAttempt);
-        SubscribeLocalEvent<IpcComponent, RadioReceiveAttemptEvent>(OnRadioReceiveAttempt);
+    }
+
+    /// <summary>
+    ///     Switches the radio module on or off depending on the IPC power state.
+    /// </summary>
+    /// <remarks>
+    ///     Called from <see cref="IpcSystem"/>, which owns the battery events:
+    ///     the event bus allows only one subscription per component and event pair.
+    /// </remarks>
+    public void UpdateModulePowerState(Entity<IpcComponent> ent)
+    {
+        if (!_container.TryGetContainer(ent.Owner, RadioSlotId, out var container))
+            return;
+
+        var powered = _ipcPower.HasEnoughPower(ent);
+
+        foreach (var module in container.ContainedEntities)
+        {
+            if (TryComp<HeadsetComponent>(module, out var headset))
+                _headset.SetEnabled(module, powered, headset);
+        }
     }
 
     private void OnModuleInserted(Entity<IpcComponent> ent, ref EntInsertedIntoContainerMessage args)
@@ -40,7 +56,7 @@ public sealed partial class IpcRadioModuleSystem : EntitySystem
         if (args.Container.ID != RadioSlotId)
             return;
 
-        EquipModule(args.Entity);
+        EquipModule(ent, args.Entity);
     }
 
     private void OnModuleRemoved(Entity<IpcComponent> ent, ref EntRemovedFromContainerMessage args)
@@ -49,16 +65,6 @@ public sealed partial class IpcRadioModuleSystem : EntitySystem
             return;
 
         UnequipModule(ent.Owner, args.Entity);
-    }
-
-    private void EquipModule(EntityUid module)
-    {
-        if (!TryComp<HeadsetComponent>(module, out var headset))
-            return;
-
-        headset.IsEquipped = true;
-        Dirty(module, headset);
-        _headset.SetEnabled(module, true, headset);
     }
 
     private void UnequipModule(EntityUid ipc, EntityUid module)
@@ -77,32 +83,13 @@ public sealed partial class IpcRadioModuleSystem : EntitySystem
         }
     }
 
-    /// <summary>
-    ///     IPC radio stops working when the battery is low.
-    /// </summary>
-    private void OnRadioSendAttempt(Entity<IpcComponent> ent, ref RadioSendAttemptEvent args)
+    private void EquipModule(Entity<IpcComponent> ipc, EntityUid module)
     {
-        if (args.RadioSource != ent.Owner
-            && Transform(args.RadioSource).ParentUid != ent.Owner)
+        if (!TryComp<HeadsetComponent>(module, out var headset))
             return;
 
-        if (_ipcPower.HasEnoughPower(ent))
-            return;
-
-        args.Cancelled = true;
-        _popup.PopupEntity(Loc.GetString(IpcNoPower), ent, ent);
-    }
-
-    /// <summary>
-    ///     IPC does not receive radio messages if the battery is low.
-    /// </summary>
-    private void OnRadioReceiveAttempt(Entity<IpcComponent> ent, ref RadioReceiveAttemptEvent args)
-    {
-        if (args.RadioReceiver != ent.Owner
-            && Transform(args.RadioReceiver).ParentUid != ent.Owner)
-            return;
-
-        if (!_ipcPower.HasEnoughPower(ent))
-            args.Cancelled = true;
+        headset.IsEquipped = true;
+        Dirty(module, headset);
+        _headset.SetEnabled(module, _ipcPower.HasEnoughPower(ipc), headset);
     }
 }

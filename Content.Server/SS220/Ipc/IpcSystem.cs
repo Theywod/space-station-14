@@ -40,6 +40,7 @@ public sealed partial class IpcSystem : SharedIpcSystem
     [Dependency] private SharedPopupSystem _popup = default!;
     [Dependency] private PowerCellSystem _powerCell = default!;
     [Dependency] private IpcPowerSystem _ipcPower = default!;
+    [Dependency] private IpcRadioModuleSystem _ipcRadio = default!;
     [Dependency] private DamageableSystem _damageableSystem = default!;
     [Dependency] private MovementSpeedModifierSystem _movementSpeedModifier = default!;
     [Dependency] private MobStateSystem _mobState = default!;
@@ -70,7 +71,7 @@ public sealed partial class IpcSystem : SharedIpcSystem
         SubscribeLocalEvent<IpcComponent, MobStateChangedEvent>(OnMobStateChanged);
         SubscribeLocalEvent<IpcComponent, OpenIpcFaceActionEvent>(OnOpenIpcFaceAction);
         SubscribeLocalEvent<IpcComponent, DamageChangedEvent>(OnDamageChanged);
-        SubscribeLocalEvent<IpcComponent, RefreshChargeRateEvent>(OnRefreshChargeRate);
+        SubscribeLocalEvent<IpcComponent, ChargeChangedEvent>(OnChargeChanged);
         SubscribeLocalEvent<IpcComponent, OnTemperatureChangeEvent>(OnTemperatureChange);
         SubscribeLocalEvent<IpcComponent, SuicideEvent>(IpcSuicide, before: [typeof(SuicideSystem)]);
     }
@@ -79,7 +80,7 @@ public sealed partial class IpcSystem : SharedIpcSystem
     {
         _action.AddAction(ent, ref ent.Comp.DrainBatteryActionEntity, ent.Comp.DrainBatteryAction);
         _action.AddAction(ent, ref ent.Comp.ChangeFaceActionEntity, ent.Comp.ChangeFaceAction);
-        _movementSpeedModifier.RefreshMovementSpeedModifiers(ent.Owner);
+        RefreshIpcState(ent);
         Dirty(ent);
     }
 
@@ -90,14 +91,14 @@ public sealed partial class IpcSystem : SharedIpcSystem
     }
 
     /// <summary>
-    /// If the battery is present but discharged, the movement speed is reduced.
+    /// If the IPC has no battery or the battery is discharged, the movement speed is reduced and the radio is disabled.
     /// </summary>
-    private void OnRefreshChargeRate(Entity<IpcComponent> ent, ref RefreshChargeRateEvent args)
+    private void OnChargeChanged(Entity<IpcComponent> ent, ref ChargeChangedEvent args)
     {
         if (Terminating(ent))
             return;
 
-        _movementSpeedModifier.RefreshMovementSpeedModifiers(ent.Owner);
+        RefreshIpcState(ent);
     }
 
     /// <summary>
@@ -110,7 +111,7 @@ public sealed partial class IpcSystem : SharedIpcSystem
         if (Terminating(ent))
             return;
 
-        _movementSpeedModifier.RefreshMovementSpeedModifiers(ent.Owner);
+        RefreshIpcState(ent);
 
         if (_powerCell.HasBattery(ent.Owner))
             return;
@@ -173,7 +174,17 @@ public sealed partial class IpcSystem : SharedIpcSystem
         if (Terminating(ent))
             return;
 
+        RefreshIpcState(ent);
+    }
+
+    /// <summary>
+    /// Recalculates the IPC state that depends on the battery charge:
+    /// movement speed and the radio module.
+    /// </summary>
+    private void RefreshIpcState(Entity<IpcComponent> ent)
+    {
         _movementSpeedModifier.RefreshMovementSpeedModifiers(ent.Owner);
+        _ipcRadio.UpdateModulePowerState(ent);
     }
 
     /// <summary>
