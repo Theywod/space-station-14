@@ -46,6 +46,7 @@ suicide-command-ipc-text-self = Запускает протокол деакти
 research-technology-ipc = КПБ
 
 ipc-suit-sensor-slot = модуль датчиков
+ipc-radio-slot = модуль связи
 
 ent-IpcSuitSensorModule = модуль датчиков КПБ
     .desc = Встраиваемый модуль, подключающий КПБ к сети мониторинга экипажа.
@@ -55,3 +56,6 @@ ent-IpcFlashlightModule = модуль фонарика КПБ
 
 ent-IpcMinerFlashlightModule = шахтёрский модуль фонарика КПБ
     .desc = Яркий модуль с широким лучом, оснащающий КПБ мощным шахтёрским фонариком. Потребляет заметно больше энергии.
+    
+ent-IpcRadioModule = модуль связи КПБ
+    .desc = Встраиваемый модуль, подключающий КПБ к радиосети.

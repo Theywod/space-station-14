@@ -8,7 +8,6 @@ using Content.Shared.Ninja.Systems;
 using Content.Shared.Popups;
 using Content.Shared.PowerCell;
 using Content.Shared.PowerCell.Components;
-using Content.Shared.Power.EntitySystems;
 using Content.Shared.Damage;
 using Content.Shared.Damage.Systems;
 using Content.Shared.Damage.Components;
@@ -31,7 +30,6 @@ using Content.Shared.Interaction.Events;
 using Content.Shared.IdentityManagement;
 using Content.Server.Chat;
 using Robust.Shared.Player;
-using Content.Server.Radio;
 
 namespace Content.Server.SS220.Ipc;
 
@@ -41,7 +39,7 @@ public sealed partial class IpcSystem : SharedIpcSystem
     [Dependency] private SharedBatteryDrainerSystem _batteryDrainer = default!;
     [Dependency] private SharedPopupSystem _popup = default!;
     [Dependency] private PowerCellSystem _powerCell = default!;
-    [Dependency] private SharedBatterySystem _battery = default!;
+    [Dependency] private IpcPowerSystem _ipcPower = default!;
     [Dependency] private DamageableSystem _damageableSystem = default!;
     [Dependency] private MovementSpeedModifierSystem _movementSpeedModifier = default!;
     [Dependency] private MobStateSystem _mobState = default!;
@@ -74,8 +72,6 @@ public sealed partial class IpcSystem : SharedIpcSystem
         SubscribeLocalEvent<IpcComponent, RefreshChargeRateEvent>(OnRefreshChargeRate);
         SubscribeLocalEvent<IpcComponent, OnTemperatureChangeEvent>(OnTemperatureChange);
         SubscribeLocalEvent<IpcComponent, SuicideEvent>(IpcSuicide, before: [typeof(SuicideSystem)]);
-        SubscribeLocalEvent<IpcComponent, RadioSendAttemptEvent>(OnRadioSendAttempt);
-        SubscribeLocalEvent<IpcComponent, RadioReceiveAttemptEvent>(OnRadioReceiveAttempt);
     }
 
     private void OnMapInit(Entity<IpcComponent> ent, ref MapInitEvent args)
@@ -167,7 +163,7 @@ public sealed partial class IpcSystem : SharedIpcSystem
     /// </summary>
     private void OnRefreshMovementSpeedModifiers(Entity<IpcComponent> ent, ref RefreshMovementSpeedModifiersEvent args)
     {
-        if (HasCriticalCharge(ent))
+        if (_ipcPower.HasCriticalCharge(ent))
             args.ModifySpeed(ent.Comp.LowChargeSpeed);
     }
 
@@ -299,35 +295,4 @@ public sealed partial class IpcSystem : SharedIpcSystem
         args.Handled = true;
     }
         
-    /// <summary>
-    /// IPC radio stops working when the battery is low.
-    /// </summary>
-    private void OnRadioSendAttempt(Entity<IpcComponent> ent, ref RadioSendAttemptEvent args)
-    {
-        if (!HasCriticalCharge(ent))
-            return;
-
-        args.Cancelled = true;
-        _popup.PopupEntity(Loc.GetString("ipc-no-power"), ent, ent);
-    }
-
-    /// <summary>
-    /// IPC does not receive radio messages if the battery is low.
-    /// </summary>
-    private void OnRadioReceiveAttempt(Entity<IpcComponent> ent, ref RadioReceiveAttemptEvent args)
-    {
-        if (HasCriticalCharge(ent))
-            args.Cancelled = true;
-    }
-
-    /// <summary>
-    /// Checks if the IPC battery has a charge below the critical threshold <see cref="IpcComponent.CritCharge"/>.
-    /// Used to gate functionality that should stop working when the battery is nearly empty
-    /// (movement speed, radio).
-    /// </summary>
-    private bool HasCriticalCharge(Entity<IpcComponent> ent)
-    {
-        return _powerCell.TryGetBatteryFromSlot(ent.Owner, out var battery)
-            && _battery.GetCharge(battery.Value.AsNullable()) / battery.Value.Comp.MaxCharge <= ent.Comp.CritCharge;
-    }
 }

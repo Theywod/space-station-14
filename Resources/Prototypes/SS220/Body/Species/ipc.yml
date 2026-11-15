@@ -253,6 +253,14 @@
             - IpcFlashlightModule
         insertSound: /Audio/Items/pistol_magin.ogg
         ejectSound: /Audio/Items/pistol_magout.ogg
+      radio_slot:
+        name: ipc-radio-slot
+        whitelist:
+          tags:
+            - IpcRadioModule
+        insertSound: /Audio/Items/pistol_magin.ogg
+        ejectSound: /Audio/Items/pistol_magout.ogg
+        startingItem: IpcRadioModule # TODO: remove after loadout integration
   - type: Lock
     unlockOnClick: false
   - type: ItemSlotsLock
@@ -261,13 +269,9 @@
   - type: ContainerContainer
     containers:
       cell_slot: !type:ContainerSlot { }
-      key_slots: !type:Container
       sensor_slot: !type:ContainerSlot { }
       flashlight_slot: !type:ContainerSlot { }
-  - type: ContainerFill
-    containers:
-      key_slots:
-      - EncryptionKeyCommon
+      radio_slot: !type:ContainerSlot { }
   - type: Destructible
     thresholds:
     - trigger: !type:DamageTypeTrigger
@@ -277,7 +281,7 @@
       - !type:EmptyContainersBehaviour
         containers:
         - cell_slot
-        - key_slots
+        - radio_slot
         - sensor_slot
         - flashlight_slot
       - !type:GibBehavior {}
@@ -288,7 +292,7 @@
       - !type:EmptyContainersBehaviour
         containers:
         - cell_slot
-        - key_slots
+        - radio_slot
         - sensor_slot
         - flashlight_slot
       - !type:GibBehavior {}
@@ -303,16 +307,6 @@
         Heat: 0
   - type: Ipc
     damageFromEmp: 0 #IPC EMP damage removed.
-  - type: IntrinsicRadioReceiver
-  - type: IntrinsicRadioTransmitter
-    channels:
-    - Common
-  - type: ActiveRadio
-    channels:
-    - Common
-  - type: EncryptionKeyHolder
-    keySlots: 4
-    examineHidden: true
   - type: PowerCellSlot
     cellSlotId: cell_slot
     fitsInCharger: true

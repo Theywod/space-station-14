@@ -121,3 +121,30 @@
     - type: PointLight
     - type: IpcFlashlightVisuals
 
+- type: entity
+  parent: BaseItem
+  id: IpcRadioModule
+  name: IPC radio module
+  description: A module that connects an IPC to the radio network.
+  components:
+  - type: Sprite
+    sprite: Objects/Misc/module.rsi
+    state: radio
+  - type: Item
+    size: Small
+  - type: Tag
+    tags:
+    - IpcRadioModule
+  - type: Headset
+    enabled: false
+    isEquipped: false
+  - type: EncryptionKeyHolder
+    keySlots: 4
+    examineHidden: true
+  - type: ContainerContainer
+    containers:
+      key_slots: !type:Container
+  - type: ContainerFill
+    containers:
+      key_slots:
+      - EncryptionKeyCommon
