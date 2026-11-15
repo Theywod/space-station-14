@@ -15,7 +15,7 @@ namespace Content.Server.SS220.Ipc;
 ///     inventory equip events, so the headset has to be marked as
 ///     equipped manually.
 /// </summary>
-public sealed class IpcRadioModuleSystem : EntitySystem
+public sealed partial class IpcRadioModuleSystem : EntitySystem
 {
     private const string RadioSlotId = "radio_slot";
 
@@ -38,7 +38,7 @@ public sealed class IpcRadioModuleSystem : EntitySystem
         if (args.Container.ID != RadioSlotId)
             return;
 
-        EquipModule(ent.Owner, args.Entity);
+        EquipModule(args.Entity);
     }
 
     private void OnModuleRemoved(Entity<IpcComponent> ent, ref EntRemovedFromContainerMessage args)
@@ -49,7 +49,7 @@ public sealed class IpcRadioModuleSystem : EntitySystem
         UnequipModule(ent.Owner, args.Entity);
     }
 
-    private void EquipModule(EntityUid ipc, EntityUid module)
+    private void EquipModule(EntityUid module)
     {
         if (!TryComp<HeadsetComponent>(module, out var headset))
             return;
