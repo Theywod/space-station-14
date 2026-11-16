@@ -12,12 +12,10 @@ namespace Content.Server.SS220.Ipc;
 
 /// <summary>
 ///     Grants the IPC the drain battery action while the drain module is
-///     inserted into the drain slot and processes its toggling.
+///     inserted into the modules container and processes its toggling.
 /// </summary>
 public sealed partial class IpcDrainModuleSystem : EntitySystem
 {
-    private const string DrainSlotId = "drain_slot";
-
     private static readonly LocId IpcDrainReady = "ipc-drain-enabled";
     private static readonly LocId IpcDrainDisabled = "ipc-drain-disabled";
     private static readonly LocId IpcNoBattery = "ipc-no-battery";
@@ -38,7 +36,7 @@ public sealed partial class IpcDrainModuleSystem : EntitySystem
 
     private void OnModuleInserted(Entity<IpcDrainModuleComponent> ent, ref EntGotInsertedIntoContainerMessage args)
     {
-        if (args.Container.ID != DrainSlotId)
+        if (args.Container.ID != IpcModuleSlotSystem.ModulesContainerId)
             return;
 
         if (!TryComp<IpcComponent>(args.Container.Owner, out var ipc))
@@ -50,7 +48,7 @@ public sealed partial class IpcDrainModuleSystem : EntitySystem
 
     private void OnModuleRemoved(Entity<IpcDrainModuleComponent> ent, ref EntGotRemovedFromContainerMessage args)
     {
-        if (args.Container.ID != DrainSlotId)
+        if (args.Container.ID != IpcModuleSlotSystem.ModulesContainerId)
             return;
 
         if (TerminatingOrDeleted(args.Container.Owner))

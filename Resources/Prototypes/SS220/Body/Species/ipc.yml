@@ -227,43 +227,6 @@
       cell_slot:
         name: power-cell-slot-component-slot-name-default
         startingItem: PowerCellMedium
-      sensor_slot:
-        name: ipc-suit-sensor-slot
-        whitelist:
-          tags:
-            - IpcSuitSensorModule
-        insertSound: /Audio/Items/pistol_magin.ogg
-        ejectSound: /Audio/Items/pistol_magout.ogg
-      flashlight_slot:
-        name: ipc-flashlight-slot
-        whitelist:
-          tags:
-            - IpcFlashlightModule
-        insertSound: /Audio/Items/pistol_magin.ogg
-        ejectSound: /Audio/Items/pistol_magout.ogg
-      radio_slot:
-        name: ipc-radio-slot
-        whitelist:
-          tags:
-            - IpcRadioModule
-        insertSound: /Audio/Items/pistol_magin.ogg
-        ejectSound: /Audio/Items/pistol_magout.ogg
-        startingItem: IpcRadioModule # TODO: remove after loadout integration
-      screen_slot:
-        name: ipc-screen-slot
-        whitelist:
-          tags:
-            - IpcScreenModule
-        insertSound: /Audio/Items/pistol_magin.ogg
-        ejectSound: /Audio/Items/pistol_magout.ogg
-        startingItem: IpcScreenModule # TODO: remove after loadout integration
-      drain_slot:
-        name: ipc-drain-slot
-        whitelist:
-          tags:
-            - IpcDrainModule
-        insertSound: /Audio/Items/pistol_magin.ogg
-        ejectSound: /Audio/Items/pistol_magout.ogg
   - type: Lock
     unlockOnClick: false
   - type: ItemSlotsLock
@@ -272,11 +235,12 @@
   - type: ContainerContainer
     containers:
       cell_slot: !type:ContainerSlot { }
-      sensor_slot: !type:ContainerSlot { }
-      flashlight_slot: !type:ContainerSlot { }
-      radio_slot: !type:ContainerSlot { }
-      screen_slot: !type:ContainerSlot { }
-      drain_slot: !type:ContainerSlot { }
+      modules: !type:Container { }
+  - type: ContainerFill
+    containers:
+      modules:
+      - IpcRadioModule # TODO: remove after loadout integration
+      - IpcScreenModule # TODO: remove after loadout integration
   - type: Destructible
     thresholds:
     - trigger: !type:DamageTypeTrigger
@@ -286,11 +250,7 @@
       - !type:EmptyContainersBehaviour
         containers:
         - cell_slot
-        - radio_slot
-        - sensor_slot
-        - flashlight_slot
-        - screen_slot
-        - drain_slot
+        - modules
       - !type:GibBehavior {}
     - trigger: !type:DamageTypeTrigger
         damageType: Blunt
@@ -299,11 +259,7 @@
       - !type:EmptyContainersBehaviour
         containers:
         - cell_slot
-        - radio_slot
-        - sensor_slot
-        - flashlight_slot
-        - screen_slot
-        - drain_slot
+        - modules
       - !type:GibBehavior {}
   - type: FireVisuals
     alternateState: Standing

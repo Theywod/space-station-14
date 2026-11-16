@@ -415,16 +415,4 @@
   id: YoggEquipment
 
 - type: Tag
-  id: IpcSuitSensorModule
-
-- type: Tag
-  id: IpcFlashlightModule
-
-- type: Tag
-  id: IpcRadioModule
-
-- type: Tag
-  id: IpcScreenModule
-
-- type: Tag
-  id: IpcDrainModule
+  id: IpcModule

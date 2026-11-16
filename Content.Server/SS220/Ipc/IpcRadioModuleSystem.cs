@@ -8,7 +8,7 @@ using Robust.Shared.Containers;
 namespace Content.Server.SS220.Ipc;
 
 /// <summary>
-///     Adapts an IPC radio module inserted into the radio slot to the
+///     Adapts an IPC radio module inserted into the modules container to the
 ///     regular headset system. Container insertion does not raise the
 ///     inventory equip events, so the headset has to be marked as
 ///     equipped manually. The module is switched off while the IPC has
@@ -16,8 +16,6 @@ namespace Content.Server.SS220.Ipc;
 /// </summary>
 public sealed partial class IpcRadioModuleSystem : EntitySystem
 {
-    private const string RadioSlotId = "radio_slot";
-
     [Dependency] private HeadsetSystem _headset = default!;
     [Dependency] private IpcPowerSystem _ipcPower = default!;
     [Dependency] private SharedContainerSystem _container = default!;
@@ -39,7 +37,7 @@ public sealed partial class IpcRadioModuleSystem : EntitySystem
     /// </remarks>
     public void UpdateModulePowerState(Entity<IpcComponent> ent)
     {
-        if (!_container.TryGetContainer(ent.Owner, RadioSlotId, out var container))
+        if (!_container.TryGetContainer(ent.Owner, IpcModuleSlotSystem.ModulesContainerId, out var container))
             return;
 
         var powered = _ipcPower.HasEnoughPower(ent);
@@ -53,7 +51,7 @@ public sealed partial class IpcRadioModuleSystem : EntitySystem
 
     private void OnModuleInserted(Entity<IpcComponent> ent, ref EntInsertedIntoContainerMessage args)
     {
-        if (args.Container.ID != RadioSlotId)
+        if (args.Container.ID != IpcModuleSlotSystem.ModulesContainerId)
             return;
 
         EquipModule(ent, args.Entity);
@@ -61,7 +59,7 @@ public sealed partial class IpcRadioModuleSystem : EntitySystem
 
     private void OnModuleRemoved(Entity<IpcComponent> ent, ref EntRemovedFromContainerMessage args)
     {
-        if (args.Container.ID != RadioSlotId)
+        if (args.Container.ID != IpcModuleSlotSystem.ModulesContainerId)
             return;
 
         UnequipModule(ent.Owner, args.Entity);

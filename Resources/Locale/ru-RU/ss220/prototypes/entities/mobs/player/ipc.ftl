@@ -44,10 +44,9 @@ suicide-command-ipc-text-self = Запускает протокол деакти
 
 research-technology-ipc = КПБ
 
-ipc-suit-sensor-slot = модуль датчиков
-ipc-radio-slot = модуль связи
-ipc-screen-slot = модуль экрана
-ipc-drain-slot = модуль опустошения
+ipc-module-eject-verb = Извлечь {$module}
+ipc-module-slot-full = Слот модулей заполнен.
+ipc-module-duplicate = Такой модуль уже установлен.
 
 ent-IpcSuitSensorModule = модуль датчиков КПБ
     .desc = Встраиваемый модуль, подключающий КПБ к сети мониторинга экипажа.

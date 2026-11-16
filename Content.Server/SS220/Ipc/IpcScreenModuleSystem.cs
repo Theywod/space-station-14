@@ -14,13 +14,11 @@ namespace Content.Server.SS220.Ipc;
 
 /// <summary>
 ///     Adds the screen change action to an IPC when a screen module is
-///     inserted into the screen slot and removes it when the module is
+///     inserted into the modules container and removes it when the module is
 ///     taken out. The action opens the Magic Mirror UI of the module.
 /// </summary>
 public sealed partial class IpcScreenModuleSystem : EntitySystem
 {
-    private const string ScreenSlotId = "screen_slot";
-
     private static readonly LocId IpcNoPower = "ipc-no-power";
     private static readonly ProtoId<OrganCategoryPrototype> Head = "Head";
 
@@ -42,7 +40,7 @@ public sealed partial class IpcScreenModuleSystem : EntitySystem
 
     private void OnModuleInserted(Entity<MagicMirrorComponent> ent, ref EntGotInsertedIntoContainerMessage args)
     {
-        if (args.Container.ID != ScreenSlotId)
+        if (args.Container.ID != IpcModuleSlotSystem.ModulesContainerId)
             return;
 
         if (!TryComp<IpcComponent>(args.Container.Owner, out var ipc))
@@ -54,7 +52,7 @@ public sealed partial class IpcScreenModuleSystem : EntitySystem
 
     private void OnModuleRemoved(Entity<MagicMirrorComponent> ent, ref EntGotRemovedFromContainerMessage args)
     {
-        if (args.Container.ID != ScreenSlotId)
+        if (args.Container.ID != IpcModuleSlotSystem.ModulesContainerId)
             return;
 
         if (!TryComp<IpcComponent>(args.Container.Owner, out var ipc))
@@ -81,8 +79,7 @@ public sealed partial class IpcScreenModuleSystem : EntitySystem
         if (args.Handled)
             return;
 
-        if (!_container.TryGetContainer(ent.Owner, ScreenSlotId, out var container)
-            || container.ContainedEntities.Count == 0)
+        if (!_container.TryGetContainer(ent.Owner, IpcModuleSlotSystem.ModulesContainerId, out var container))
             return;
 
         if (!_ipcPower.HasEnoughPower(ent))
@@ -91,12 +88,23 @@ public sealed partial class IpcScreenModuleSystem : EntitySystem
             return;
         }
 
-        var module = container.ContainedEntities[0];
+        EntityUid? module = null;
+        foreach (var contained in container.ContainedEntities)
+        {
+            if (HasComp<MagicMirrorComponent>(contained))
+            {
+                module = contained;
+                break;
+            }
+        }
+
+        if (module is not { } moduleUid)
+            return;
 
         // Raise event on the module. MagicMirrorSystem calls UpdateInterface().
         var ev = new BeforeActivatableUIOpenEvent(args.Performer);
-        RaiseLocalEvent(module, ev);
+        RaiseLocalEvent(moduleUid, ev);
 
-        args.Handled = _ui.TryOpenUi(module, MagicMirrorUiKey.Key, args.Performer);
+        args.Handled = _ui.TryOpenUi(moduleUid, MagicMirrorUiKey.Key, args.Performer);
     }
 }

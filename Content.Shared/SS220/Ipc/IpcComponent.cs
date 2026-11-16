@@ -117,6 +117,12 @@ public sealed partial class IpcComponent : Component
     /// </summary>
     [DataField]
     public HashSet<string> HiddenClothingSlots = ["eyes"];
+
+    /// <summary>
+    /// Maximum number of modules that can be installed into the modules container.
+    /// </summary>
+    [DataField]
+    public int ModuleCapacity = 5;
 }
 
 public sealed partial class ToggleDrainActionEvent : InstantActionEvent;

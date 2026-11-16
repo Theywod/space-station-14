@@ -11,12 +11,12 @@
     size: Small
   - type: Tag
     tags:
-    - IpcSuitSensorModule
+    - IpcModule
   - type: SuitSensor
     randomMode: false
     mode: SensorCords
     controlsLocked: false
-    activationContainer: sensor_slot
+    activationContainer: modules
   - type: DeviceNetwork
     deviceNetId: Wireless
     transmitFrequencyId: SuitSensor
@@ -38,9 +38,9 @@
     size: Small
   - type: Tag
     tags:
-    - IpcFlashlightModule
+    - IpcModule
   - type: TriggerOnGotInsertedIntoContainer
-    containerId: flashlight_slot
+    containerId: modules
     keyOut: ipcFlashlightInstall
   - type: AddComponentsOnTrigger
     keysIn:
@@ -62,7 +62,7 @@
       lightEntity: IpcFlashlightLight
     removeExisting: true
   - type: TriggerOnGotRemovedFromContainer
-    containerId: flashlight_slot
+    containerId: modules
     keyOut: ipcFlashlightRemove
   - type: RemoveComponentsOnTrigger
     keysIn:
@@ -86,9 +86,9 @@
     size: Small
   - type: Tag
     tags:
-    - IpcFlashlightModule
+    - IpcModule
   - type: TriggerOnGotInsertedIntoContainer
-    containerId: flashlight_slot
+    containerId: modules
     keyOut: ipcMinerFlashlightInstall
   - type: AddComponentsOnTrigger
     keysIn:
@@ -110,7 +110,7 @@
       lightEntity: IpcMinerFlashlightLight
     removeExisting: true
   - type: TriggerOnGotRemovedFromContainer
-    containerId: flashlight_slot
+    containerId: modules
     keyOut: ipcMinerFlashlightRemove
   - type: RemoveComponentsOnTrigger
     keysIn:
@@ -134,7 +134,7 @@
     size: Small
   - type: Tag
     tags:
-    - IpcRadioModule
+    - IpcModule
   - type: Headset
     enabled: false
     isEquipped: false
@@ -162,7 +162,7 @@
     size: Small
   - type: Tag
     tags:
-    - IpcScreenModule
+    - IpcModule
   - type: MagicMirror
     organs:
     - Head
@@ -191,5 +191,5 @@
     size: Small
   - type: Tag
     tags:
-    - IpcDrainModule
+    - IpcModule
   - type: IpcDrainModule
