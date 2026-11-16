@@ -17,9 +17,7 @@ using Content.Shared.Mobs;
 using Content.Shared.Mobs.Systems;
 using Content.Shared.Mobs.Components;
 using Content.Shared.Sound.Components;
-using Content.Shared.UserInterface;
 using Content.Shared.Temperature;
-using Content.Shared.MagicMirror;
 using Content.Shared.Power;
 using Content.Server.Body.Components;
 using Content.Server.EUI;
@@ -44,7 +42,6 @@ public sealed partial class IpcSystem : SharedIpcSystem
     [Dependency] private DamageableSystem _damageableSystem = default!;
     [Dependency] private MovementSpeedModifierSystem _movementSpeedModifier = default!;
     [Dependency] private MobStateSystem _mobState = default!;
-    [Dependency] private SharedUserInterfaceSystem _ui = default!;
     [Dependency] private MobThresholdSystem _mobThresholdSystem = default!;
     [Dependency] private EuiManager _eui = default!;
     [Dependency] private ISharedPlayerManager _player = default!;
@@ -69,7 +66,6 @@ public sealed partial class IpcSystem : SharedIpcSystem
         SubscribeLocalEvent<IpcComponent, RefreshMovementSpeedModifiersEvent>(OnRefreshMovementSpeedModifiers);
         SubscribeLocalEvent<IpcComponent, BatteryStateChangedEvent>(OnBatteryStateChanged);
         SubscribeLocalEvent<IpcComponent, MobStateChangedEvent>(OnMobStateChanged);
-        SubscribeLocalEvent<IpcComponent, OpenIpcFaceActionEvent>(OnOpenIpcFaceAction);
         SubscribeLocalEvent<IpcComponent, DamageChangedEvent>(OnDamageChanged);
         SubscribeLocalEvent<IpcComponent, ChargeChangedEvent>(OnChargeChanged);
         SubscribeLocalEvent<IpcComponent, OnTemperatureChangeEvent>(OnTemperatureChange);
@@ -79,7 +75,6 @@ public sealed partial class IpcSystem : SharedIpcSystem
     private void OnMapInit(Entity<IpcComponent> ent, ref MapInitEvent args)
     {
         _action.AddAction(ent, ref ent.Comp.DrainBatteryActionEntity, ent.Comp.DrainBatteryAction);
-        _action.AddAction(ent, ref ent.Comp.ChangeFaceActionEntity, ent.Comp.ChangeFaceAction);
         RefreshIpcState(ent);
         Dirty(ent);
     }
@@ -87,7 +82,6 @@ public sealed partial class IpcSystem : SharedIpcSystem
     private void OnComponentShutdown(Entity<IpcComponent> ent, ref ComponentShutdown args)
     {
         _action.RemoveAction(ent.Owner, ent.Comp.DrainBatteryActionEntity);
-        _action.RemoveAction(ent.Owner, ent.Comp.ChangeFaceActionEntity);
     }
 
     /// <summary>
@@ -185,27 +179,6 @@ public sealed partial class IpcSystem : SharedIpcSystem
     {
         _movementSpeedModifier.RefreshMovementSpeedModifiers(ent.Owner);
         _ipcRadio.UpdateModulePowerState(ent);
-    }
-
-    /// <summary>
-    /// The screen image change function is based on the Magic Mirror.
-    /// </summary>
-    private void OnOpenIpcFaceAction(Entity<IpcComponent> ent, ref OpenIpcFaceActionEvent args)
-    {
-        if (args.Handled)
-            return;
-
-        if (!HasComp<MagicMirrorComponent>(ent))
-            return;
-
-        // User open UI event.
-        var ev = new BeforeActivatableUIOpenEvent(args.Performer);
-
-        // Raise event on ent. MagicMirrorSystem call UpdateInterface().
-        RaiseLocalEvent(ent.Owner, ev);
-
-        // Open magic mirror UI
-        args.Handled = _ui.TryOpenUi(ent.Owner, MagicMirrorUiKey.Key, args.Performer);
     }
 
     /// <summary>

@@ -148,3 +148,32 @@
     containers:
       key_slots:
       - EncryptionKeyCommon
+
+- type: entity
+  parent: BaseItem
+  id: IpcScreenModule
+  name: IPC screen module
+  description: A module that lets an IPC change its screen.
+  components:
+  - type: Sprite
+    sprite: Objects/Misc/module.rsi
+    state: service
+  - type: Item
+    size: Small
+  - type: Tag
+    tags:
+    - IpcScreenModule
+  - type: MagicMirror
+    organs:
+    - Head
+    layers:
+    - Snout
+    changeHairSound: null
+    modifyTime: 0
+    showPopup: false
+    checkHeadSlot: false
+    interactable: false
+  - type: UserInterface
+    interfaces:
+      enum.MagicMirrorUiKey.Key:
+        type: MagicMirrorBoundUserInterface

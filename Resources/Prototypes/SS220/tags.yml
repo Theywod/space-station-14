@@ -422,3 +422,6 @@
 
 - type: Tag
   id: IpcRadioModule
+
+- type: Tag
+  id: IpcScreenModule
