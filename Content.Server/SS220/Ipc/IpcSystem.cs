@@ -1,10 +1,7 @@
 ﻿// © SS220, An EULA/CLA with a hosting restriction, full text: https://raw.githubusercontent.com/SerbiaStrong-220/space-station-14/master/CLA.txt
 // Original code taken from: Corvax https://github.com/space-syndicate/space-station-14
 
-using Content.Shared.Actions;
 using Content.Shared.SS220.Ipc;
-using Content.Shared.Ninja.Components;
-using Content.Shared.Ninja.Systems;
 using Content.Shared.Popups;
 using Content.Shared.PowerCell;
 using Content.Shared.PowerCell.Components;
@@ -33,12 +30,11 @@ namespace Content.Server.SS220.Ipc;
 
 public sealed partial class IpcSystem : SharedIpcSystem
 {
-    [Dependency] private SharedActionsSystem _action = default!;
-    [Dependency] private SharedBatteryDrainerSystem _batteryDrainer = default!;
     [Dependency] private SharedPopupSystem _popup = default!;
     [Dependency] private PowerCellSystem _powerCell = default!;
     [Dependency] private IpcPowerSystem _ipcPower = default!;
     [Dependency] private IpcRadioModuleSystem _ipcRadio = default!;
+    [Dependency] private IpcDrainModuleSystem _ipcDrain = default!;
     [Dependency] private DamageableSystem _damageableSystem = default!;
     [Dependency] private MovementSpeedModifierSystem _movementSpeedModifier = default!;
     [Dependency] private MobStateSystem _mobState = default!;
@@ -48,9 +44,6 @@ public sealed partial class IpcSystem : SharedIpcSystem
     [Dependency] private SharedMindSystem _mind = default!;
     [Dependency] private SharedSuicideSystem _suicide = default!;
 
-    private static readonly LocId IpcDrainReady = "ipc-drain-enabled";
-    private static readonly LocId IpcDrainDisabled = "ipc-drain-disabled";
-    private static readonly LocId IpcNoBattery = "ipc-no-battery";
     private static readonly TimeSpan SoundMinInterval = TimeSpan.FromSeconds(15);
     private static readonly TimeSpan SoundMaXInterval = TimeSpan.FromSeconds(30);
 
@@ -59,9 +52,7 @@ public sealed partial class IpcSystem : SharedIpcSystem
         base.Initialize();
 
         SubscribeLocalEvent<IpcComponent, MapInitEvent>(OnMapInit);
-        SubscribeLocalEvent<IpcComponent, ComponentShutdown>(OnComponentShutdown);
         SubscribeLocalEvent<IpcComponent, PowerCellChangedEvent>(OnPowerCellChanged);
-        SubscribeLocalEvent<IpcComponent, ToggleDrainActionEvent>(OnToggleDrainAction);
         SubscribeLocalEvent<IpcComponent, EmpPulseEvent>(OnEmpPulse);
         SubscribeLocalEvent<IpcComponent, RefreshMovementSpeedModifiersEvent>(OnRefreshMovementSpeedModifiers);
         SubscribeLocalEvent<IpcComponent, BatteryStateChangedEvent>(OnBatteryStateChanged);
@@ -74,14 +65,8 @@ public sealed partial class IpcSystem : SharedIpcSystem
 
     private void OnMapInit(Entity<IpcComponent> ent, ref MapInitEvent args)
     {
-        _action.AddAction(ent, ref ent.Comp.DrainBatteryActionEntity, ent.Comp.DrainBatteryAction);
         RefreshIpcState(ent);
         Dirty(ent);
-    }
-
-    private void OnComponentShutdown(Entity<IpcComponent> ent, ref ComponentShutdown args)
-    {
-        _action.RemoveAction(ent.Owner, ent.Comp.DrainBatteryActionEntity);
     }
 
     /// <summary>
@@ -97,7 +82,7 @@ public sealed partial class IpcSystem : SharedIpcSystem
 
     /// <summary>
     /// The presence of a battery affects the movement speed
-    /// and the ability to use the drain ability.
+    /// and the radio module state.
     /// When removing the battery, forcibly disable the drain ability.
     /// </summary>
     private void OnPowerCellChanged(Entity<IpcComponent> ent, ref PowerCellChangedEvent args)
@@ -110,48 +95,7 @@ public sealed partial class IpcSystem : SharedIpcSystem
         if (_powerCell.HasBattery(ent.Owner))
             return;
 
-        ent.Comp.DrainActivated = false;
-        _action.SetToggled(ent.Comp.DrainBatteryActionEntity, ent.Comp.DrainActivated);
-
-        // show popup only if comp removed
-        if (RemComp<BatteryDrainerComponent>(ent))
-        {
-            _popup.PopupEntity(Loc.GetString(IpcDrainDisabled), ent, ent);
-        }
-
-        Dirty(ent);
-    }
-
-    /// <summary>
-    /// Enable/disable the drain ability. 
-    /// </summary>
-    private void OnToggleDrainAction(Entity<IpcComponent> ent, ref ToggleDrainActionEvent args)
-    {
-        if (args.Handled)
-            return;
-
-        if (!_powerCell.HasBattery(ent.Owner))
-        {
-            _popup.PopupEntity(Loc.GetString(IpcNoBattery), ent, ent);
-            return;
-        }
-
-        ent.Comp.DrainActivated = !ent.Comp.DrainActivated;
-        _action.SetToggled(ent.Comp.DrainBatteryActionEntity, ent.Comp.DrainActivated);
-        args.Handled = true;
-
-        if (ent.Comp.DrainActivated && _powerCell.TryGetBatteryFromSlot(ent.Owner, out var battery))
-        {
-            EnsureComp<BatteryDrainerComponent>(ent);
-            _batteryDrainer.SetBattery(ent.Owner, battery);
-        }
-        else
-            RemComp<BatteryDrainerComponent>(ent);
-
-        var message = ent.Comp.DrainActivated ? IpcDrainReady : IpcDrainDisabled;
-        _popup.PopupEntity(Loc.GetString(message), ent, ent);
-
-        Dirty(ent);
+        _ipcDrain.DisableDrain(ent);
     }
 
     /// <summary>

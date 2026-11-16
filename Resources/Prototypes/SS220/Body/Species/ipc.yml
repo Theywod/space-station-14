@@ -257,6 +257,13 @@
         insertSound: /Audio/Items/pistol_magin.ogg
         ejectSound: /Audio/Items/pistol_magout.ogg
         startingItem: IpcScreenModule # TODO: remove after loadout integration
+      drain_slot:
+        name: ipc-drain-slot
+        whitelist:
+          tags:
+            - IpcDrainModule
+        insertSound: /Audio/Items/pistol_magin.ogg
+        ejectSound: /Audio/Items/pistol_magout.ogg
   - type: Lock
     unlockOnClick: false
   - type: ItemSlotsLock
@@ -269,6 +276,7 @@
       flashlight_slot: !type:ContainerSlot { }
       radio_slot: !type:ContainerSlot { }
       screen_slot: !type:ContainerSlot { }
+      drain_slot: !type:ContainerSlot { }
   - type: Destructible
     thresholds:
     - trigger: !type:DamageTypeTrigger
@@ -282,6 +290,7 @@
         - sensor_slot
         - flashlight_slot
         - screen_slot
+        - drain_slot
       - !type:GibBehavior {}
     - trigger: !type:DamageTypeTrigger
         damageType: Blunt
@@ -294,6 +303,7 @@
         - sensor_slot
         - flashlight_slot
         - screen_slot
+        - drain_slot
       - !type:GibBehavior {}
   - type: FireVisuals
     alternateState: Standing

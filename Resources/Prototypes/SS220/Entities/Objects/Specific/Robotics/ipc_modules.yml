@@ -177,3 +177,19 @@
     interfaces:
       enum.MagicMirrorUiKey.Key:
         type: MagicMirrorBoundUserInterface
+
+- type: entity
+  parent: BaseItem
+  id: IpcDrainModule
+  name: IPC drain module
+  description: A module that lets an IPC drain nearby power sources to recharge itself.
+  components:
+  - type: Sprite
+    sprite: Objects/Misc/module.rsi
+    state: charger_APC
+  - type: Item
+    size: Small
+  - type: Tag
+    tags:
+    - IpcDrainModule
+  - type: IpcDrainModule

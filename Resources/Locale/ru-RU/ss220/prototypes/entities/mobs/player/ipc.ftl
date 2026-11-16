@@ -13,7 +13,6 @@ ipc-drain-enabled = Опустошение заряда активно
 ipc-drain-disabled = Опустошение заряда отключено
 
 ipc-no-battery = Отсутствует батарея
-ipc-no-power = Батарея разряжена
 
 id-card-access-level-ipc = КПБ
 
@@ -47,6 +46,8 @@ research-technology-ipc = КПБ
 
 ipc-suit-sensor-slot = модуль датчиков
 ipc-radio-slot = модуль связи
+ipc-screen-slot = модуль экрана
+ipc-drain-slot = модуль опустошения
 
 ent-IpcSuitSensorModule = модуль датчиков КПБ
     .desc = Встраиваемый модуль, подключающий КПБ к сети мониторинга экипажа.
@@ -59,3 +60,11 @@ ent-IpcMinerFlashlightModule = шахтёрский модуль фонарик�
 
 ent-IpcRadioModule = модуль связи КПБ
     .desc = Встраиваемый модуль, подключающий КПБ к радиосети.
+
+ent-IpcScreenModule = модуль экрана КПБ
+    .desc = Встраиваемый модуль, позволяющий КПБ менять изображение на экране.
+
+ent-IpcDrainModule = модуль опустошения КПБ
+    .desc = Встраиваемый модуль, позволяющий КПБ опустошать заряд близлежащих источников питания.
+
+ipc-no-power = Батарея разряжена

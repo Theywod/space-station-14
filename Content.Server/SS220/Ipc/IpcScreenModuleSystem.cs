@@ -3,7 +3,6 @@
 using Content.Shared.Actions;
 using Content.Shared.Body;
 using Content.Shared.Humanoid;
-using Content.Shared.Humanoid.Markings;
 using Content.Shared.MagicMirror;
 using Content.Shared.Popups;
 using Content.Shared.SS220.Ipc;
