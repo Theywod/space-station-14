@@ -1,14 +1,13 @@
 // © SS220, An EULA/CLA with a hosting restriction, full text: https://raw.githubusercontent.com/SerbiaStrong-220/space-station-14/master/CLA.txt
 
-using Robust.Shared.GameStates;
 using Robust.Shared.Prototypes;
 
 namespace Content.Shared.SS220.Ipc;
 
-[RegisterComponent, NetworkedComponent, AutoGenerateComponentState]
+[RegisterComponent]
 public sealed partial class IpcFlashlightVisualsComponent : Component
 {
-    [DataField, AutoNetworkedField]
+    [DataField]
     public EntProtoId LightEntity = "IpcFlashlightLight";
 
     public EntityUid? SpawnedLight;

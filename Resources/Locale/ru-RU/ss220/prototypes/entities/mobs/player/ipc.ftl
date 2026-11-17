@@ -47,6 +47,7 @@ research-technology-ipc = КПБ
 ipc-module-eject-verb = Извлечь {$module}
 ipc-module-slot-full = Слот модулей заполнен.
 ipc-module-duplicate = Такой модуль уже установлен.
+ipc-module-conflict = Модуль с такими же функциями уже установлен.
 
 ent-IpcSuitSensorModule = модуль датчиков КПБ
     .desc = Встраиваемый модуль, подключающий КПБ к сети мониторинга экипажа.

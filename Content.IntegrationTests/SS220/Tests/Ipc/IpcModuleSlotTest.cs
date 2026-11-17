@@ -77,6 +77,23 @@ public sealed class IpcModuleSlotTest : GameTest
             Assert.That(slots.TryInsertModule((ipc, ipcComp), entMan.SpawnEntity(FlashlightModule, map.GridCoords)), Is.True);
             Assert.That(slots.TryInsertModule((ipc, ipcComp), entMan.SpawnEntity(MinerFlashlightModule, map.GridCoords)), Is.False);
         });
+
+        // Modules that add the same components to the IPC conflict with each other.
+        await server.WaitAssertion(() =>
+        {
+            containerSystem.TryGetContainer(ipc, IpcModuleSlotSystem.ModulesContainerId, out var container);
+            var ipcComp = entMan.GetComponent<IpcComponent>(ipc);
+
+            var sensor = FindModule(entMan, container!, SensorModule);
+            Assert.That(slots.TryEjectModule((ipc, ipcComp), sensor), Is.True);
+
+            // The flashlight module is installed, so the miner flashlight module
+            // cannot be inserted: it would overwrite the flashlight components.
+            var miner = entMan.SpawnEntity(MinerFlashlightModule, map.GridCoords);
+            Assert.That(slots.TryInsertModule((ipc, ipcComp), miner), Is.False);
+
+            Assert.That(slots.TryInsertModule((ipc, ipcComp), sensor), Is.True);
+        });
     }
 
     private static EntityUid FindModule(IEntityManager entMan, BaseContainer container, EntProtoId proto)

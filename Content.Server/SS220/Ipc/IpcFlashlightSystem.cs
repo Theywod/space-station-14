@@ -8,6 +8,10 @@ using Robust.Shared.Prototypes;
 
 namespace Content.Server.SS220.Ipc;
 
+/// <summary>
+///     Spawns a visible light entity for the IPC flashlight module and keeps
+///     it in sync with the light toggle and the IPC's inner body anomaly.
+/// </summary>
 public sealed partial class IpcFlashlightSystem : EntitySystem
 {
     private const string LightRegistryKey = "PointLight";
@@ -21,21 +25,12 @@ public sealed partial class IpcFlashlightSystem : EntitySystem
         SubscribeLocalEvent<IpcFlashlightVisualsComponent, LightToggleEvent>(OnLightToggle);
         SubscribeLocalEvent<IpcFlashlightVisualsComponent, ComponentShutdown>(OnShutdown);
         SubscribeLocalEvent<InnerBodyAnomalyComponent, ComponentStartup>(OnAnomalyStartup);
-        EntityManager.ComponentRemoved += OnComponentRemoved;
+        SubscribeLocalEvent<InnerBodyAnomalyComponent, ComponentShutdown>(OnAnomalyShutdown);
     }
 
-    public override void Shutdown()
+    private void OnAnomalyShutdown(Entity<InnerBodyAnomalyComponent> ent, ref ComponentShutdown args)
     {
-        base.Shutdown();
-        EntityManager.ComponentRemoved -= OnComponentRemoved;
-    }
-
-    private void OnComponentRemoved(RemovedComponentEventArgs args)
-    {
-        if (args.BaseArgs.Component is not InnerBodyAnomalyComponent)
-            return;
-
-        if (!TryComp(args.BaseArgs.Owner, out IpcFlashlightVisualsComponent? visuals) ||
+        if (!TryComp(ent.Owner, out IpcFlashlightVisualsComponent? visuals) ||
             visuals.SpawnedLight is not { } light ||
             !_light.TryGetLight(light, out var pointLight))
             return;

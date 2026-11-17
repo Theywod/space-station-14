@@ -7,6 +7,7 @@ using Content.Shared.Interaction;
 using Content.Shared.Popups;
 using Content.Shared.SS220.Ipc;
 using Content.Shared.Tag;
+using Content.Shared.Trigger.Components.Effects;
 using Content.Shared.Verbs;
 using Robust.Shared.Audio;
 using Robust.Shared.Audio.Systems;
@@ -27,6 +28,7 @@ public sealed partial class IpcModuleSlotSystem : EntitySystem
     private static readonly LocId IpcModuleEjectVerb = "ipc-module-eject-verb";
     private static readonly LocId IpcModuleFull = "ipc-module-slot-full";
     private static readonly LocId IpcModuleDuplicate = "ipc-module-duplicate";
+    private static readonly LocId IpcModuleConflict = "ipc-module-conflict";
 
     private static readonly SoundSpecifier InsertSound = new SoundPathSpecifier("/Audio/Items/pistol_magin.ogg");
     private static readonly SoundSpecifier EjectSound = new SoundPathSpecifier("/Audio/Items/pistol_magout.ogg");
@@ -109,6 +111,12 @@ public sealed partial class IpcModuleSlotSystem : EntitySystem
             return;
         }
 
+        if (HasOverlappingComponents(container, args.Used))
+        {
+            _popup.PopupClient(Loc.GetString(IpcModuleConflict), ent.Owner, args.User);
+            return;
+        }
+
         if (!_hands.TryDrop(args.User, args.Used, suppressDropSound: true))
             return;
 
@@ -142,7 +150,10 @@ public sealed partial class IpcModuleSlotSystem : EntitySystem
         if (container.ContainedEntities.Count >= ipc.ModuleCapacity)
             return false;
 
-        return !HasDuplicate(container, module);
+        if (HasDuplicate(container, module))
+            return false;
+
+        return !HasOverlappingComponents(container, module);
     }
 
     private bool HasDuplicate(BaseContainer container, EntityUid module)
@@ -153,6 +164,30 @@ public sealed partial class IpcModuleSlotSystem : EntitySystem
         {
             if (MetaData(existing).EntityPrototype == prototype)
                 return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    ///     Modules that add the same components to the IPC conflict with each
+    ///     other: the second one would overwrite the first one's components.
+    /// </summary>
+    private bool HasOverlappingComponents(BaseContainer container, EntityUid module)
+    {
+        if (!TryComp<AddComponentsOnTriggerComponent>(module, out var adding))
+            return false;
+
+        foreach (var existing in container.ContainedEntities)
+        {
+            if (!TryComp<AddComponentsOnTriggerComponent>(existing, out var existingAdding))
+                continue;
+
+            foreach (var component in adding.Components.Keys)
+            {
+                if (existingAdding.Components.ContainsKey(component))
+                    return true;
+            }
         }
 
         return false;
