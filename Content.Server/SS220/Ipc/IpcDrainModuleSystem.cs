@@ -6,7 +6,6 @@ using Content.Shared.Ninja.Systems;
 using Content.Shared.Popups;
 using Content.Shared.PowerCell;
 using Content.Shared.SS220.Ipc;
-using Robust.Shared.Containers;
 
 namespace Content.Server.SS220.Ipc;
 
@@ -29,45 +28,36 @@ public sealed partial class IpcDrainModuleSystem : EntitySystem
     {
         base.Initialize();
 
-        SubscribeLocalEvent<IpcDrainModuleComponent, EntGotInsertedIntoContainerMessage>(OnModuleInserted);
-        SubscribeLocalEvent<IpcDrainModuleComponent, EntGotRemovedFromContainerMessage>(OnModuleRemoved);
+        SubscribeLocalEvent<IpcDrainModuleComponent, IpcModuleInsertedEvent>(OnModuleInserted);
+        SubscribeLocalEvent<IpcDrainModuleComponent, IpcModuleRemovedEvent>(OnModuleRemoved);
         SubscribeLocalEvent<IpcComponent, ToggleDrainActionEvent>(OnToggleDrainAction);
     }
 
-    private void OnModuleInserted(Entity<IpcDrainModuleComponent> ent, ref EntGotInsertedIntoContainerMessage args)
+    private void OnModuleInserted(Entity<IpcDrainModuleComponent> ent, ref IpcModuleInsertedEvent args)
     {
-        if (args.Container.ID != IpcModuleSlotSystem.ModulesContainerId)
-            return;
-
-        if (!TryComp<IpcComponent>(args.Container.Owner, out var ipc))
-            return;
-
-        _action.AddAction(args.Container.Owner, ref ipc.DrainBatteryActionEntity, ipc.DrainBatteryAction);
-        Dirty(args.Container.Owner, ipc);
+        var ipc = args.Ipc;
+        _action.AddAction(ipc.Owner, ref ipc.Comp.DrainBatteryActionEntity, ipc.Comp.DrainBatteryAction);
+        Dirty(ipc);
     }
 
-    private void OnModuleRemoved(Entity<IpcDrainModuleComponent> ent, ref EntGotRemovedFromContainerMessage args)
+    private void OnModuleRemoved(Entity<IpcDrainModuleComponent> ent, ref IpcModuleRemovedEvent args)
     {
-        if (args.Container.ID != IpcModuleSlotSystem.ModulesContainerId)
-            return;
+        var ipc = args.Ipc;
 
-        if (TerminatingOrDeleted(args.Container.Owner))
-            return;
-
-        if (!TryComp<IpcComponent>(args.Container.Owner, out var ipc))
+        if (TerminatingOrDeleted(ipc.Owner))
             return;
 
         // Removing the module with an active drain disables it.
-        if (ipc.DrainActivated)
+        if (ipc.Comp.DrainActivated)
         {
-            ipc.DrainActivated = false;
-            _action.SetToggled(ipc.DrainBatteryActionEntity, false);
-            RemComp<BatteryDrainerComponent>(args.Container.Owner);
-            _popup.PopupEntity(Loc.GetString(IpcDrainDisabled), args.Container.Owner, args.Container.Owner);
+            ipc.Comp.DrainActivated = false;
+            _action.SetToggled(ipc.Comp.DrainBatteryActionEntity, false);
+            RemComp<BatteryDrainerComponent>(ipc.Owner);
+            _popup.PopupEntity(Loc.GetString(IpcDrainDisabled), ipc.Owner, ipc.Owner);
         }
 
-        _action.RemoveAction(args.Container.Owner, ipc.DrainBatteryActionEntity);
-        Dirty(args.Container.Owner, ipc);
+        _action.RemoveAction(ipc.Owner, ipc.Comp.DrainBatteryActionEntity);
+        Dirty(ipc);
     }
 
     /// <summary>

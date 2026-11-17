@@ -1,3 +1,5 @@
+# © SS220, An EULA/CLA with a hosting restriction, full text: https://raw.githubusercontent.com/SerbiaStrong-220/space-station-14/master/CLA.txt
+
 - type: entity
   parent: BaseItem
   id: IpcSuitSensorModule
@@ -27,13 +29,11 @@
 
 - type: entity
   parent: BaseItem
-  id: IpcFlashlightModule
-  name: IPC flashlight module
-  description: A module that equips an IPC with a built-in flashlight.
+  id: BaseIpcFlashlightModule
+  abstract: true
   components:
   - type: Sprite
     sprite: Objects/Misc/module.rsi
-    state: power_mod
   - type: Item
     size: Small
   - type: Tag
@@ -42,6 +42,26 @@
   - type: TriggerOnGotInsertedIntoContainer
     containerId: modules
     keyOut: ipcFlashlightInstall
+  - type: TriggerOnGotRemovedFromContainer
+    containerId: modules
+    keyOut: ipcFlashlightRemove
+  - type: RemoveComponentsOnTrigger
+    keysIn:
+    - ipcFlashlightRemove
+    targetUser: true
+    components:
+    - type: HandheldLight
+    - type: PointLight
+    - type: IpcFlashlightVisuals
+
+- type: entity
+  parent: BaseIpcFlashlightModule
+  id: IpcFlashlightModule
+  name: IPC flashlight module
+  description: A module that equips an IPC with a built-in flashlight.
+  components:
+  - type: Sprite
+    state: power_mod
   - type: AddComponentsOnTrigger
     keysIn:
     - ipcFlashlightInstall
@@ -61,38 +81,18 @@
     - type: IpcFlashlightVisuals
       lightEntity: IpcFlashlightLight
     removeExisting: true
-  - type: TriggerOnGotRemovedFromContainer
-    containerId: modules
-    keyOut: ipcFlashlightRemove
-  - type: RemoveComponentsOnTrigger
-    keysIn:
-    - ipcFlashlightRemove
-    targetUser: true
-    components:
-    - type: HandheldLight
-    - type: PointLight
-    - type: IpcFlashlightVisuals
 
 - type: entity
-  parent: BaseItem
+  parent: BaseIpcFlashlightModule
   id: IpcMinerFlashlightModule
   name: IPC mining flashlight module
   description: A bright wide-beam module that equips an IPC with a powerful mining flashlight. Consumes much more energy.
   components:
   - type: Sprite
-    sprite: Objects/Misc/module.rsi
     state: security
-  - type: Item
-    size: Small
-  - type: Tag
-    tags:
-    - IpcModule
-  - type: TriggerOnGotInsertedIntoContainer
-    containerId: modules
-    keyOut: ipcMinerFlashlightInstall
   - type: AddComponentsOnTrigger
     keysIn:
-    - ipcMinerFlashlightInstall
+    - ipcFlashlightInstall
     targetUser: true
     components:
     - type: HandheldLight
@@ -109,17 +109,6 @@
     - type: IpcFlashlightVisuals
       lightEntity: IpcMinerFlashlightLight
     removeExisting: true
-  - type: TriggerOnGotRemovedFromContainer
-    containerId: modules
-    keyOut: ipcMinerFlashlightRemove
-  - type: RemoveComponentsOnTrigger
-    keysIn:
-    - ipcMinerFlashlightRemove
-    targetUser: true
-    components:
-    - type: HandheldLight
-    - type: PointLight
-    - type: IpcFlashlightVisuals
 
 - type: entity
   parent: BaseItem

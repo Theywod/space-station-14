@@ -1,5 +1,6 @@
 // © SS220, An EULA/CLA with a hosting restriction, full text: https://raw.githubusercontent.com/SerbiaStrong-220/space-station-14/master/CLA.txt
 
+using System.Diagnostics.CodeAnalysis;
 using Content.Shared.Containers.ItemSlots;
 using Content.Shared.Hands.EntitySystems;
 using Content.Shared.IdentityManagement;
@@ -29,6 +30,7 @@ public sealed partial class IpcModuleSlotSystem : EntitySystem
     private static readonly LocId IpcModuleFull = "ipc-module-slot-full";
     private static readonly LocId IpcModuleDuplicate = "ipc-module-duplicate";
     private static readonly LocId IpcModuleConflict = "ipc-module-conflict";
+    private static readonly LocId IpcModuleDeny = "ipc-module-insert-denied";
 
     private static readonly SoundSpecifier InsertSound = new SoundPathSpecifier("/Audio/Items/pistol_magin.ogg");
     private static readonly SoundSpecifier EjectSound = new SoundPathSpecifier("/Audio/Items/pistol_magout.ogg");
@@ -45,6 +47,8 @@ public sealed partial class IpcModuleSlotSystem : EntitySystem
 
         SubscribeLocalEvent<IpcComponent, InteractUsingEvent>(OnInteractUsing, before: [typeof(ItemSlotsSystem)]);
         SubscribeLocalEvent<IpcComponent, GetVerbsEvent<AlternativeVerb>>(AddModuleVerbs);
+        SubscribeLocalEvent<IpcComponent, EntInsertedIntoContainerMessage>(OnModuleInserted);
+        SubscribeLocalEvent<IpcComponent, EntRemovedFromContainerMessage>(OnModuleRemoved);
     }
 
     /// <summary>
@@ -59,6 +63,9 @@ public sealed partial class IpcModuleSlotSystem : EntitySystem
             return false;
 
         if (!CanInsert(ipc.Comp, container, module))
+            return false;
+
+        if (!RaiseInsertAttempt(ipc, module, out _))
             return false;
 
         return _container.Insert(module, container);
@@ -82,6 +89,33 @@ public sealed partial class IpcModuleSlotSystem : EntitySystem
         }
 
         return true;
+    }
+
+    /// <summary>
+    ///     Notifies the module systems that a module was inserted into the
+    ///     modules container. The event is raised on the module itself so that
+    ///     each system subscribes with its own component and event pair.
+    /// </summary>
+    private void OnModuleInserted(Entity<IpcComponent> ent, ref EntInsertedIntoContainerMessage args)
+    {
+        if (args.Container.ID != ModulesContainerId)
+            return;
+
+        var ev = new IpcModuleInsertedEvent(ent);
+        RaiseLocalEvent(args.Entity, ref ev);
+    }
+
+    /// <summary>
+    ///     Notifies the module systems that a module was removed from the
+    ///     modules container.
+    /// </summary>
+    private void OnModuleRemoved(Entity<IpcComponent> ent, ref EntRemovedFromContainerMessage args)
+    {
+        if (args.Container.ID != ModulesContainerId)
+            return;
+
+        var ev = new IpcModuleRemovedEvent(ent);
+        RaiseLocalEvent(args.Entity, ref ev);
     }
 
     private void OnInteractUsing(Entity<IpcComponent> ent, ref InteractUsingEvent args)
@@ -114,6 +148,12 @@ public sealed partial class IpcModuleSlotSystem : EntitySystem
         if (HasOverlappingComponents(container, args.Used))
         {
             _popup.PopupClient(Loc.GetString(IpcModuleConflict), ent.Owner, args.User);
+            return;
+        }
+
+        if (!RaiseInsertAttempt(ent, args.Used, out var reason))
+        {
+            _popup.PopupClient(Loc.GetString(reason ?? IpcModuleDeny), ent.Owner, args.User);
             return;
         }
 
@@ -156,6 +196,19 @@ public sealed partial class IpcModuleSlotSystem : EntitySystem
         return !HasOverlappingComponents(container, module);
     }
 
+    /// <summary>
+    ///     Raises <see cref="IpcModuleInsertAttemptEvent"/> on the IPC and on
+    ///     the module so that other systems can veto the insertion.
+    /// </summary>
+    private bool RaiseInsertAttempt(Entity<IpcComponent> ipc, EntityUid module, out string? reason)
+    {
+        var ev = new IpcModuleInsertAttemptEvent(ipc, module);
+        RaiseLocalEvent(ipc.Owner, ref ev);
+        RaiseLocalEvent(module, ref ev);
+        reason = ev.Reason;
+        return !ev.Cancelled;
+    }
+
     private bool HasDuplicate(BaseContainer container, EntityUid module)
     {
         var prototype = MetaData(module).EntityPrototype;
@@ -166,6 +219,29 @@ public sealed partial class IpcModuleSlotSystem : EntitySystem
                 return true;
         }
 
+        return false;
+    }
+
+    /// <summary>
+    ///     Finds the first module with the given component in the IPC modules
+    ///     container.
+    /// </summary>
+    public bool TryGetModule<T>(EntityUid ipc, [NotNullWhen(true)] out EntityUid module)
+        where T : IComponent
+    {
+        if (_container.TryGetContainer(ipc, ModulesContainerId, out var container))
+        {
+            foreach (var contained in container.ContainedEntities)
+            {
+                if (HasComp<T>(contained))
+                {
+                    module = contained;
+                    return true;
+                }
+            }
+        }
+
+        module = default;
         return false;
     }
 

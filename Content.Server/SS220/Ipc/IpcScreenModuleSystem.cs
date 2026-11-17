@@ -7,7 +7,6 @@ using Content.Shared.MagicMirror;
 using Content.Shared.Popups;
 using Content.Shared.SS220.Ipc;
 using Content.Shared.UserInterface;
-using Robust.Shared.Containers;
 using Robust.Shared.Prototypes;
 
 namespace Content.Server.SS220.Ipc;
@@ -23,9 +22,9 @@ public sealed partial class IpcScreenModuleSystem : EntitySystem
     private static readonly ProtoId<OrganCategoryPrototype> Head = "Head";
 
     [Dependency] private SharedActionsSystem _action = default!;
-    [Dependency] private SharedContainerSystem _container = default!;
     [Dependency] private IpcPowerSystem _ipcPower = default!;
     [Dependency] private SharedPopupSystem _popup = default!;
+    [Dependency] private IpcModuleSlotSystem _slots = default!;
     [Dependency] private SharedUserInterfaceSystem _ui = default!;
     [Dependency] private SharedVisualBodySystem _visualBody = default!;
 
@@ -33,39 +32,29 @@ public sealed partial class IpcScreenModuleSystem : EntitySystem
     {
         base.Initialize();
 
-        SubscribeLocalEvent<MagicMirrorComponent, EntGotInsertedIntoContainerMessage>(OnModuleInserted);
-        SubscribeLocalEvent<MagicMirrorComponent, EntGotRemovedFromContainerMessage>(OnModuleRemoved);
+        SubscribeLocalEvent<MagicMirrorComponent, IpcModuleInsertedEvent>(OnModuleInserted);
+        SubscribeLocalEvent<MagicMirrorComponent, IpcModuleRemovedEvent>(OnModuleRemoved);
         SubscribeLocalEvent<IpcComponent, OpenIpcFaceActionEvent>(OnOpenIpcFaceAction);
     }
 
-    private void OnModuleInserted(Entity<MagicMirrorComponent> ent, ref EntGotInsertedIntoContainerMessage args)
+    private void OnModuleInserted(Entity<MagicMirrorComponent> ent, ref IpcModuleInsertedEvent args)
     {
-        if (args.Container.ID != IpcModuleSlotSystem.ModulesContainerId)
-            return;
-
-        if (!TryComp<IpcComponent>(args.Container.Owner, out var ipc))
-            return;
-
-        _action.AddAction(args.Container.Owner, ref ipc.ChangeFaceActionEntity, ipc.ChangeFaceAction);
-        Dirty(args.Container.Owner, ipc);
+        var ipc = args.Ipc;
+        _action.AddAction(ipc.Owner, ref ipc.Comp.ChangeFaceActionEntity, ipc.Comp.ChangeFaceAction);
+        Dirty(ipc);
     }
 
-    private void OnModuleRemoved(Entity<MagicMirrorComponent> ent, ref EntGotRemovedFromContainerMessage args)
+    private void OnModuleRemoved(Entity<MagicMirrorComponent> ent, ref IpcModuleRemovedEvent args)
     {
-        if (args.Container.ID != IpcModuleSlotSystem.ModulesContainerId)
-            return;
-
-        if (!TryComp<IpcComponent>(args.Container.Owner, out var ipc))
-            return;
-
-        _action.RemoveAction(args.Container.Owner, ipc.ChangeFaceActionEntity);
-        Dirty(args.Container.Owner, ipc);
+        var ipc = args.Ipc;
+        _action.RemoveAction(ipc.Owner, ipc.Comp.ChangeFaceActionEntity);
+        Dirty(ipc);
 
         // Without the module the IPC screen is cleared, as if no screen was selected.
-        if (TerminatingOrDeleted(args.Container.Owner))
+        if (TerminatingOrDeleted(ipc.Owner))
             return;
 
-        _visualBody.ApplyMarkings(args.Container.Owner, new()
+        _visualBody.ApplyMarkings(ipc.Owner, new()
         {
             [Head] = new()
             {
@@ -79,26 +68,13 @@ public sealed partial class IpcScreenModuleSystem : EntitySystem
         if (args.Handled)
             return;
 
-        if (!_container.TryGetContainer(ent.Owner, IpcModuleSlotSystem.ModulesContainerId, out var container))
-            return;
-
         if (!_ipcPower.HasEnoughPower(ent))
         {
             _popup.PopupEntity(Loc.GetString(IpcNoPower), ent, ent);
             return;
         }
 
-        EntityUid? module = null;
-        foreach (var contained in container.ContainedEntities)
-        {
-            if (HasComp<MagicMirrorComponent>(contained))
-            {
-                module = contained;
-                break;
-            }
-        }
-
-        if (module is not { } moduleUid)
+        if (!_slots.TryGetModule<MagicMirrorComponent>(ent.Owner, out var moduleUid))
             return;
 
         // Raise event on the module. MagicMirrorSystem calls UpdateInterface().

@@ -3,7 +3,6 @@
 using Content.Server.Radio.EntitySystems;
 using Content.Shared.Radio.Components;
 using Content.Shared.SS220.Ipc;
-using Robust.Shared.Containers;
 
 namespace Content.Server.SS220.Ipc;
 
@@ -18,14 +17,14 @@ public sealed partial class IpcRadioModuleSystem : EntitySystem
 {
     [Dependency] private HeadsetSystem _headset = default!;
     [Dependency] private IpcPowerSystem _ipcPower = default!;
-    [Dependency] private SharedContainerSystem _container = default!;
+    [Dependency] private IpcModuleSlotSystem _slots = default!;
 
     public override void Initialize()
     {
         base.Initialize();
 
-        SubscribeLocalEvent<IpcComponent, EntInsertedIntoContainerMessage>(OnModuleInserted);
-        SubscribeLocalEvent<IpcComponent, EntRemovedFromContainerMessage>(OnModuleRemoved);
+        SubscribeLocalEvent<HeadsetComponent, IpcModuleInsertedEvent>(OnModuleInserted);
+        SubscribeLocalEvent<HeadsetComponent, IpcModuleRemovedEvent>(OnModuleRemoved);
     }
 
     /// <summary>
@@ -37,48 +36,33 @@ public sealed partial class IpcRadioModuleSystem : EntitySystem
     /// </remarks>
     public void UpdateModulePowerState(Entity<IpcComponent> ent)
     {
-        if (!_container.TryGetContainer(ent.Owner, IpcModuleSlotSystem.ModulesContainerId, out var container))
+        if (!_slots.TryGetModule<HeadsetComponent>(ent.Owner, out var module))
             return;
 
         var powered = _ipcPower.HasEnoughPower(ent);
-
-        foreach (var module in container.ContainedEntities)
-        {
-            if (TryComp<HeadsetComponent>(module, out var headset))
-                _headset.SetEnabled(module, powered, headset);
-        }
+        _headset.SetEnabled(module, powered);
     }
 
-    private void OnModuleInserted(Entity<IpcComponent> ent, ref EntInsertedIntoContainerMessage args)
+    private void OnModuleInserted(Entity<HeadsetComponent> ent, ref IpcModuleInsertedEvent args)
     {
-        if (args.Container.ID != IpcModuleSlotSystem.ModulesContainerId)
-            return;
-
-        EquipModule(ent, args.Entity);
+        EquipModule(args.Ipc, ent.Owner);
     }
 
-    private void OnModuleRemoved(Entity<IpcComponent> ent, ref EntRemovedFromContainerMessage args)
+    private void OnModuleRemoved(Entity<HeadsetComponent> ent, ref IpcModuleRemovedEvent args)
     {
-        if (args.Container.ID != IpcModuleSlotSystem.ModulesContainerId)
-            return;
-
-        UnequipModule(ent.Owner, args.Entity);
+        UnequipModule(ent.Owner);
     }
 
-    private void UnequipModule(EntityUid ipc, EntityUid module)
+    private void UnequipModule(EntityUid module)
     {
         if (!TryComp<HeadsetComponent>(module, out var headset))
             return;
 
+        // SetEnabled(false) removes WearingHeadsetComponent from the parent
+        // while the headset is still marked as equipped.
+        _headset.SetEnabled(module, false, headset);
         headset.IsEquipped = false;
         Dirty(module, headset);
-        _headset.SetEnabled(module, false, headset);
-
-        if (TryComp<WearingHeadsetComponent>(ipc, out var wearing)
-            && wearing.Headset == module)
-        {
-            RemComp<WearingHeadsetComponent>(ipc);
-        }
     }
 
     private void EquipModule(Entity<IpcComponent> ipc, EntityUid module)

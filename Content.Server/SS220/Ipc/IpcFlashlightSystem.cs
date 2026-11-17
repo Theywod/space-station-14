@@ -18,6 +18,7 @@ public sealed partial class IpcFlashlightSystem : EntitySystem
 
     [Dependency] private IPrototypeManager _proto = default!;
     [Dependency] private SharedPointLightSystem _light = default!;
+    [Dependency] private SharedTransformSystem _transform = default!;
 
     public override void Initialize()
     {
@@ -25,12 +26,23 @@ public sealed partial class IpcFlashlightSystem : EntitySystem
         SubscribeLocalEvent<IpcFlashlightVisualsComponent, LightToggleEvent>(OnLightToggle);
         SubscribeLocalEvent<IpcFlashlightVisualsComponent, ComponentShutdown>(OnShutdown);
         SubscribeLocalEvent<InnerBodyAnomalyComponent, ComponentStartup>(OnAnomalyStartup);
-        SubscribeLocalEvent<InnerBodyAnomalyComponent, ComponentShutdown>(OnAnomalyShutdown);
+        // The directed (InnerBodyAnomalyComponent, ComponentShutdown) pair is already
+        // owned by InnerBodyAnomalySystem, so the entity manager hook is used instead.
+        EntityManager.ComponentRemoved += OnComponentRemoved;
     }
 
-    private void OnAnomalyShutdown(Entity<InnerBodyAnomalyComponent> ent, ref ComponentShutdown args)
+    public override void Shutdown()
     {
-        if (!TryComp(ent.Owner, out IpcFlashlightVisualsComponent? visuals) ||
+        base.Shutdown();
+        EntityManager.ComponentRemoved -= OnComponentRemoved;
+    }
+
+    private void OnComponentRemoved(RemovedComponentEventArgs args)
+    {
+        if (args.BaseArgs.Component is not InnerBodyAnomalyComponent)
+            return;
+
+        if (!TryComp<IpcFlashlightVisualsComponent>(args.BaseArgs.Owner, out var visuals) ||
             visuals.SpawnedLight is not { } light ||
             !_light.TryGetLight(light, out var pointLight))
             return;
@@ -44,6 +56,8 @@ public sealed partial class IpcFlashlightSystem : EntitySystem
             return;
 
         var light = EntityManager.SpawnAttachedTo(ent.Comp.LightEntity, new EntityCoordinates(ent.Owner, default));
+        // Attach the light to the IPC so that it follows the IPC when it moves.
+        _transform.SetParent(light, ent.Owner);
         ent.Comp.SpawnedLight = light;
         ApplyAnomalyColor(ent);
     }

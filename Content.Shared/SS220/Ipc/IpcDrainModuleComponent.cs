@@ -4,7 +4,7 @@ namespace Content.Shared.SS220.Ipc;
 
 /// <summary>
 ///     Marker component of the IPC drain module. Lets the drain module system
-///     react to the module being inserted into and removed from the drain slot.
+///     react to the module being inserted into and removed from the IPC modules container.
 /// </summary>
 [RegisterComponent]
 public sealed partial class IpcDrainModuleComponent : Component
