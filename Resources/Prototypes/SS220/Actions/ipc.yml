@@ -28,15 +28,6 @@
       event: !type:OpenIpcFaceActionEvent
 
 - type: entity
-  parent: ActionToggleLight
-  id: ActionIpcToggleLight
-  components:
-  - type: Action
-    useDelay: 1
-    icon: { sprite: SS220/Interface/Actions/ipc/light.rsi, state: off }
-    iconOn: { sprite: SS220/Interface/Actions/ipc/light.rsi, state: on }
-
-- type: entity
   parent: ActionScream
   id: ActionIpcScream
   components:
@@ -44,4 +35,15 @@
     useDelay: 10
     icon: { sprite: SS220/Interface/Actions/ipc/scream.rsi, state: scream }
     checkCanInteract: false
+
+- type: entity
+  id: ActionIpcToggleItemModule
+  name: Toggle IPC Item Module
+  description: Deploys the items of the IPC item module or folds them back.
+  components:
+  - type: Action
+    icon: { sprite: Objects/Misc/module.rsi, state: engineering }
+    itemIconStyle: NoItem
+  - type: InstantAction
+    event: !type:ToggleIpcItemModuleActionEvent
 

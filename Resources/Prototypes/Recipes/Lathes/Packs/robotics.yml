@@ -77,4 +77,5 @@
   id: IpcModules
   recipes:
   - IpcSuitSensorModule
+  - IpcSynthesizerModule
 # ss220 end

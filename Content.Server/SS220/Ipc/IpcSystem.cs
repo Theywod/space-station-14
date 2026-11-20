@@ -17,6 +17,7 @@ using Content.Shared.Sound.Components;
 using Content.Shared.Temperature;
 using Content.Shared.Power;
 using Content.Server.Body.Components;
+using Content.Shared.Temperature.Components;
 using Content.Server.EUI;
 using Content.Server.Ghost;
 using Content.Shared.Mind;
@@ -35,6 +36,7 @@ public sealed partial class IpcSystem : SharedIpcSystem
     [Dependency] private IpcPowerSystem _ipcPower = default!;
     [Dependency] private IpcRadioModuleSystem _ipcRadio = default!;
     [Dependency] private IpcDrainModuleSystem _ipcDrain = default!;
+    [Dependency] private IpcItemModuleSystem _ipcItem = default!;
     [Dependency] private DamageableSystem _damageableSystem = default!;
     [Dependency] private MovementSpeedModifierSystem _movementSpeedModifier = default!;
     [Dependency] private MobStateSystem _mobState = default!;
@@ -60,6 +62,7 @@ public sealed partial class IpcSystem : SharedIpcSystem
         SubscribeLocalEvent<IpcComponent, DamageChangedEvent>(OnDamageChanged);
         SubscribeLocalEvent<IpcComponent, ChargeChangedEvent>(OnChargeChanged);
         SubscribeLocalEvent<IpcComponent, OnTemperatureChangeEvent>(OnTemperatureChange);
+        SubscribeLocalEvent<IpcComponent, IpcPassiveDrawChangedEvent>(OnPassiveDrawChanged);
         SubscribeLocalEvent<IpcComponent, SuicideEvent>(IpcSuicide, before: [typeof(SuicideSystem)]);
     }
 
@@ -117,12 +120,13 @@ public sealed partial class IpcSystem : SharedIpcSystem
 
     /// <summary>
     /// Recalculates the IPC state that depends on the battery charge:
-    /// movement speed and the radio module.
+    /// movement speed and the modules.
     /// </summary>
     private void RefreshIpcState(Entity<IpcComponent> ent)
     {
         _movementSpeedModifier.RefreshMovementSpeedModifiers(ent.Owner);
         _ipcRadio.UpdateModulePowerState(ent);
+        _ipcItem.UpdateModulePowerState(ent);
     }
 
     /// <summary>
@@ -189,25 +193,49 @@ public sealed partial class IpcSystem : SharedIpcSystem
     }
 
     /// <summary>
-    /// IPC are sensitive to temperature changes. 
+    /// IPC are sensitive to temperature changes.
     /// Going into space without a hardsuit? The battery drains faster.
     /// </summary>
     private void OnTemperatureChange(Entity<IpcComponent> ent, ref OnTemperatureChangeEvent args)
     {
+        RefreshDrawRate(ent);
+    }
+
+    /// <summary>
+    /// The passive draw of the item modules changed: a module was inserted,
+    /// removed, deployed or folded.
+    /// </summary>
+    private void OnPassiveDrawChanged(Entity<IpcComponent> ent, ref IpcPassiveDrawChangedEvent args)
+    {
+        if (Terminating(ent))
+            return;
+
+        RefreshDrawRate(ent);
+    }
+
+    /// <summary>
+    /// Recalculates the battery draw rate: the temperature-based rate plus
+    /// the passive draw of the installed item modules.
+    /// </summary>
+    private void RefreshDrawRate(Entity<IpcComponent> ent)
+    {
         if (!TryComp<PowerCellDrawComponent>(ent, out var draw))
             return;
 
-        if (!TryComp<ThermalRegulatorComponent>(ent, out var regulator))
-            return;
-
-        var delta = Math.Abs(args.CurrentTemperature - regulator.NormalBodyTemperature);
-
         var newDrawRate = ent.Comp.BaseDrawRate;
 
-        if (delta > ent.Comp.CritDelta)
-            newDrawRate = ent.Comp.CritDrawRate;
-        else if (delta > ent.Comp.OverDelta)
-            newDrawRate = ent.Comp.OverDrawRate;
+        if (TryComp<ThermalRegulatorComponent>(ent, out var regulator)
+            && TryComp<TemperatureComponent>(ent, out var temperature))
+        {
+            var delta = Math.Abs(temperature.CurrentTemperature - regulator.NormalBodyTemperature);
+
+            if (delta > ent.Comp.CritDelta)
+                newDrawRate = ent.Comp.CritDrawRate;
+            else if (delta > ent.Comp.OverDelta)
+                newDrawRate = ent.Comp.OverDrawRate;
+        }
+
+        newDrawRate += _ipcItem.GetTotalPassiveDraw(ent.Owner);
 
         _powerCell.SetDrawRate((ent.Owner, draw), newDrawRate);
     }

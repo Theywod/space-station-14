@@ -255,4 +255,5 @@
   cost: 5000
   recipeUnlocks:
   - IpcSuitSensorModule
+  - IpcSynthesizerModule
 # ss220 epc end

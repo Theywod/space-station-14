@@ -21,3 +21,11 @@ public record struct IpcModuleRemovedEvent(Entity<IpcComponent> Ipc);
 /// </summary>
 [ByRefEvent]
 public record struct IpcModuleInsertAttemptEvent(Entity<IpcComponent> Ipc, EntityUid Module, bool Cancelled = false, string? Reason = null);
+
+/// <summary>
+///     Raised on the IPC when the passive draw of its item modules changes:
+///     a module was inserted or removed, or a deployed module was deployed
+///     or folded.
+/// </summary>
+[ByRefEvent]
+public record struct IpcPassiveDrawChangedEvent;

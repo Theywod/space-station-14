@@ -23,3 +23,14 @@
     Glass: 100
     Silver: 100
     Gold: 100
+
+- type: latheRecipe
+  id: IpcSynthesizerModule
+  result: IpcSynthesizerModule
+  categories: [ Robotics ]
+  completetime: 3
+  materials:
+    Steel: 100
+    Glass: 100
+    Silver: 100
+    Gold: 100

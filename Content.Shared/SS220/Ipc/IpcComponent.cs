@@ -128,3 +128,5 @@ public sealed partial class IpcComponent : Component
 public sealed partial class ToggleDrainActionEvent : InstantActionEvent;
 
 public sealed partial class OpenIpcFaceActionEvent : InstantActionEvent;
+
+public sealed partial class ToggleIpcItemModuleActionEvent : InstantActionEvent;

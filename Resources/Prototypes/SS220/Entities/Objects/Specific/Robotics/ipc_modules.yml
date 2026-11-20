@@ -29,86 +29,65 @@
 
 - type: entity
   parent: BaseItem
-  id: BaseIpcFlashlightModule
-  abstract: true
+  id: IpcFlashlightModule
+  name: IPC flashlight module
+  description: A module that deploys a flashlight into a dedicated IPC hand. Passively drains the IPC battery.
   components:
   - type: Sprite
     sprite: Objects/Misc/module.rsi
+    state: power_mod
   - type: Item
     size: Small
   - type: Tag
     tags:
     - IpcModule
-  - type: TriggerOnGotInsertedIntoContainer
-    containerId: modules
-    keyOut: ipcFlashlightInstall
-  - type: TriggerOnGotRemovedFromContainer
-    containerId: modules
-    keyOut: ipcFlashlightRemove
-  - type: RemoveComponentsOnTrigger
-    keysIn:
-    - ipcFlashlightRemove
-    targetUser: true
-    components:
-    - type: HandheldLight
-    - type: PointLight
-    - type: IpcFlashlightVisuals
+  - type: ContainerContainer
+    containers:
+      holding_container: !type:Container
+  - type: IpcItemModule
+    items:
+    - IpcFlashlight
+    activationCost: 50
+    passiveDrawFolded: 0.1
+    passiveDrawDeployed: 0.2
+    foldOnDischarge: true
+    actionIcon:
+      sprite: SS220/Interface/Actions/ipc/light.rsi
+      state: off
+    actionIconOn:
+      sprite: SS220/Interface/Actions/ipc/light.rsi
+      state: on
 
 - type: entity
-  parent: BaseIpcFlashlightModule
-  id: IpcFlashlightModule
-  name: IPC flashlight module
-  description: A module that equips an IPC with a built-in flashlight.
-  components:
-  - type: Sprite
-    state: power_mod
-  - type: AddComponentsOnTrigger
-    keysIn:
-    - ipcFlashlightInstall
-    targetUser: true
-    components:
-    - type: HandheldLight
-      toggleOnInteract: false
-      wattage: 0.2
-      blinkingBehaviourId: blinking
-      radiatingBehaviourId: radiating
-      toggleAction: ActionIpcToggleLight
-    - type: PointLight
-      enabled: false
-      energy: 0
-      radius: 4
-      netsync: true
-    - type: IpcFlashlightVisuals
-      lightEntity: IpcFlashlightLight
-    removeExisting: true
-
-- type: entity
-  parent: BaseIpcFlashlightModule
+  parent: BaseItem
   id: IpcMinerFlashlightModule
   name: IPC mining flashlight module
-  description: A bright wide-beam module that equips an IPC with a powerful mining flashlight. Consumes much more energy.
+  description: A module that deploys a bright wide-beam mining flashlight into a dedicated IPC hand. Passively drains the IPC battery more.
   components:
   - type: Sprite
+    sprite: Objects/Misc/module.rsi
     state: security
-  - type: AddComponentsOnTrigger
-    keysIn:
-    - ipcFlashlightInstall
-    targetUser: true
-    components:
-    - type: HandheldLight
-      toggleOnInteract: false
-      wattage: 0.5
-      blinkingBehaviourId: blinking
-      radiatingBehaviourId: radiating
-      toggleAction: ActionIpcToggleLight
-    - type: PointLight
-      enabled: false
-      energy: 0
-      radius: 8
-      netsync: true
-    - type: IpcFlashlightVisuals
-      lightEntity: IpcMinerFlashlightLight
-    removeExisting: true
+  - type: Item
+    size: Small
+  - type: Tag
+    tags:
+    - IpcModule
+  - type: ContainerContainer
+    containers:
+      holding_container: !type:Container
+  - type: IpcItemModule
+    items:
+    - IpcMinerFlashlight
+    activationCost: 50
+    passiveDrawFolded: 0.2
+    passiveDrawDeployed: 0.5
+    foldOnDischarge: true
+    actionIcon:
+      sprite: SS220/Interface/Actions/ipc/light.rsi
+      state: off
+    actionIconOn:
+      sprite: SS220/Interface/Actions/ipc/light.rsi
+      state: on
 
 - type: entity
   parent: BaseItem
@@ -182,3 +161,32 @@
     tags:
     - IpcModule
   - type: IpcDrainModule
+
+- type: entity
+  parent: BaseItem
+  id: IpcSynthesizerModule
+  name: IPC synthesizer module
+  description: A module that deploys a synthesizer into a dedicated IPC hand. Passively drains the IPC battery.
+  components:
+  - type: Sprite
+    sprite: Objects/Misc/module.rsi
+    state: mcontroller
+  - type: Item
+    size: Small
+  - type: Tag
+    tags:
+    - IpcModule
+  - type: ContainerContainer
+    containers:
+      holding_container: !type:Container
+  - type: IpcItemModule
+    items:
+    - SynthesizerInstrument
+    activationCost: 50
+    passiveDrawFolded: 0.2
+    passiveDrawDeployed: 0.5
+    foldOnDischarge: true
+    actionIcon:
+      sprite: SS220/Objects/Fun/Instruments/h_synthesizer.rsi
+      state: icon
+
